@@ -14,7 +14,7 @@ const RegisterForm = () => {
   });
 
   const [errors, setErrors] = useState({});
-  const [showConfirmation, setShowConfirmation] = useState(false); // New state for showing confirmation screen
+  const [showConfirmation, setShowConfirmation] = useState(false);
 
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
@@ -22,7 +22,6 @@ const RegisterForm = () => {
 
   const validate = () => {
     const newErrors = {};
-
     if (!form.name.trim()) newErrors.name = 'Name is required';
     if (!form.email.trim()) newErrors.email = 'Email is required';
     if (!form.phone.trim()) newErrors.phone = 'Phone is required';
@@ -47,17 +46,15 @@ const RegisterForm = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-  
-    // Validate form fields
+
     const validationErrors = validate();
     if (Object.keys(validationErrors).length > 0) {
       setErrors(validationErrors);
       return;
     }
-  
+
     setErrors({});
-  
-    // Attempt to register the user
+
     const { data, error } = await supabase.auth.signUp({
       email: form.email,
       password: form.password,
@@ -68,37 +65,15 @@ const RegisterForm = () => {
         }
       }
     });
-  
+
     if (error) {
       alert('Sign-up failed: ' + error.message);
       return;
     }
-  
-    const user = data.user;
-  
-    // If user was created, insert additional info into custom users table
-    if (user) {
-      const { error: insertError } = await supabase.from('users').insert([
-        {
-          id: user.id, // Link to auth user ID
-          name: form.name,
-          email: form.email,
-          phone: form.phone,
-          role: 'user'
-        }
-      ]);
-  
-      if (insertError) {
-        console.error('Insert into users table failed:', insertError);
-        alert('Something went wrong saving your profile.');
-        return;
-      }
-    }
-  
-    // Show email confirmation screen (DO NOT navigate to login yet)
+
+    // NOTE: Do NOT insert into `users` table here because `data.user` is null until email is confirmed.
     setShowConfirmation(true);
   };
-  
 
   if (showConfirmation) {
     return (
