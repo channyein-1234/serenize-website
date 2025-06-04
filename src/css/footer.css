@@ -1,0 +1,94 @@
+/* src/css/footer.css */
+
+.footer {
+    width: 100%;
+    background-color: #eb7ca7; /* dark pink */
+    color: white;
+    padding: 20px 30px;
+    text-align: center;
+    margin-top: 40px;
+    border-top-left-radius: 10px;
+    border-top-right-radius: 10px;
+    
+  }
+  
+  .footer-content {
+    width: 90%;
+    max-height: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  
+  .footer-content p{
+    font-size: 12px;
+    font-weight: bold;
+    
+  }
+
+  .footer-content h3{
+    font-size: 13px;
+    text-shadow: 2px 2px 2px rgb(80, 82, 82)
+    ;
+  }
+
+  .site-name {
+    font-size: 15px;
+    font-weight: bold;
+    margin-bottom: 10px;
+  }
+  
+  /* At max width 790, make font size smaller */
+  @media (max-width: 790px) {
+    .footer-content p {
+      font-size: 10px;
+    }
+  
+    .footer-content h3 {
+      font-size: 11px;
+    }
+  
+    .site-name {
+      font-size: 13px;
+    }
+  
+    .footer {
+      padding: 15px 20px;
+    }
+  }
+
+
+/*  At max-width 700px — hide <p> in footer-content */
+@media (max-width: 700px) {
+  .footer-content p {
+    display: none;
+  }
+  
+  .footer-content {
+    justify-content: center;
+  }
+}
+
+/*  At max-width 500px — make <h3> even smaller */
+@media (max-width: 500px) {
+  .footer-content h3 {
+    font-size: 9px;
+  }
+}
+
+/*  At max-width 320px — maintain responsiveness */
+@media (max-width: 320px) {
+  .footer {
+    padding: 10px 15px;
+  }
+
+
+  .footer-content h3 {
+    font-size: 8px;
+  }
+
+  .site-name {
+    font-size: 11px;
+  }
+}
+  

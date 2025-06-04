@@ -1,0 +1,168 @@
+/* src/WelcomePage.css */
+
+/* General Styling */
+
+/* Welcome page css */
+.welcome-container {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  background-color: #e8cbd2;
+  font-family: 'Arial', sans-serif;
+  text-align: center;
+  padding: 20px;
+}
+
+.welcome-heading {
+  font-size: 3rem;
+  color: #535557;
+  margin: 0.5rem 0;
+  line-height: 1.2;
+}
+
+.welcome-heading p {
+  display: inline;
+  font-size: 1.5rem;
+  margin: 0 5px;
+}
+
+.underline{
+  display: flex;
+  font-size: 3rem;
+  font-weight: lighter;
+  color: #cb94b8;;
+  margin: 0.5rem 0;
+}
+
+.welcome-subheading {
+  font-size: 1.25rem;
+  font-weight: bolder;
+  font-family: Arial, Helvetica, sans-serif;
+  color: #535557;
+  margin: 1rem 0;
+}
+
+.buttons-group {
+  display: inline-block;
+  gap: 1rem;
+  justify-content: center;
+  margin-top: 2rem;
+}
+
+
+.btn-container{
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+}
+.action-button {
+  background-color: #215b33;
+  color: white;
+  font-size: 1.2rem;
+  border: none;
+  border-radius: 8px;
+  padding: 12px 20px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  width: 200px;
+}
+
+.action-button:hover {
+  background-color: #1d7939;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .welcome-heading {
+    font-size: 2.5rem;
+  }
+
+  .welcome-subheading {
+    font-size: 1.1rem;
+  }
+
+  .btn-container {
+    flex-direction: column;
+  }
+
+  .action-button {
+    width: 100%;
+    margin-bottom: 10px;
+  }
+
+}
+
+@media (max-width: 690px) {
+  .buttons-group h4{
+    font-size: small;
+  }
+  }
+
+@media (max-width: 570px) {
+  .welcome-heading {
+    font-size: 1.3rem;
+  }
+
+  .welcome-subheading {
+    font-size: 1rem;
+  }
+ 
+  .btn-container {
+    gap: 0.5rem;
+    flex-direction: column;
+  }
+  .buttons-group h4{
+    font-size: 12px;
+  }
+
+  .action-button{
+    font-size: 12px;
+    width: 100px;
+    height: 40px;
+    justify-content: center;
+  }
+
+  
+}
+
+@media (max-width: 480px) {
+  .welcome-heading {
+    font-size: 2rem;
+  }
+
+  .welcome-subheading {
+    font-size: 1rem;
+  }
+ 
+}
+@media (max-width: 460px) {
+  .welcome-heading {
+    font-size:20px ;
+  }
+
+  .welcome-subheading {
+    font-size: 15px;
+  }
+
+
+  
+}
+
+@media (max-width: 343px) {
+  .welcome-heading{
+    font-size: large;
+  }
+  .underline{
+    font-size: larger;
+  }
+  .welcome-subheading{
+    font-size: smaller;
+  }
+
+}
+
+
+/* Welcome page css end here */

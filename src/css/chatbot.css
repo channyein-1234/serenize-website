@@ -1,0 +1,43 @@
+*{
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    
+}
+/* src/css/chatbot.css */
+
+/* Ensure full page height */
+.page-container {
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    background: #f8f9fa;
+  }
+  
+  /* Let this grow and take up space between navbar and footer */
+  .chat-container {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+    background-color: aquamarine;
+  }
+  
+  
+  .cs-main-container {
+    height: 100%;
+    width: 100%;
+    max-width: 800px;
+    /* border-radius: 20px; */
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    background-color: #ffffff;
+  }
+  @media (max-width: 768px) {
+    .cs-main-container {
+      height: 100%;
+      width: 100%;
+      border-radius: 0;
+    }
+  }
+  
