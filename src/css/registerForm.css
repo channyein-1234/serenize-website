@@ -15,6 +15,58 @@
     width: 100%;
     max-width: 400px;
   }
+  .registerForm-container {
+    max-width: 400px;
+    margin: 2rem auto;
+    background: #f9fafb;
+    padding: 2rem 2.5rem;
+    border-radius: 12px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    color: #111827;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: 1.5rem; /* space between items */
+  }
+  
+  .registerForm-container h2 {
+    font-size: 1.75rem;
+    font-weight: 700;
+    color: #2563eb;
+    margin: 0; /* remove margin since gap handles spacing */
+  }
+  
+  .registerForm-container p {
+    font-size: 1rem;
+    line-height: 1.5;
+    margin: 0;
+    color: #374151;
+  }
+  
+  .registerForm-container strong {
+    color: #1e40af;
+  }
+  
+  .registerForm-container button {
+    width: 100%;
+    max-width: 250px; /* optional max width for button */
+    background-color: #2563eb;
+    color: white;
+    font-weight: 600;
+    padding: 0.75rem;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    font-size: 1rem;
+  }
+  
+  .registerForm-container button:hover {
+    background-color: #1e40af;
+  }
+  
   .previous-btn{
     width: 50px;
   }
