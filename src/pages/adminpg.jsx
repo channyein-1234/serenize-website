@@ -14,6 +14,8 @@ const AdminPage = () => {
   const [nameInput, setNameInput] = useState('');
   const [emailInput, setEmailInput] = useState('');
   const [messages, setMessages] = useState([]);
+  const [currentPage, setCurrentPage] = useState(1);
+  const messagesPerPage = 5;
 
   useEffect(() => {
     const fetchData = async () => {
@@ -76,6 +78,26 @@ const AdminPage = () => {
       setEditMode(false);
     }
   };
+
+  const deleteMessage = async (id) => {
+    await supabase.from('messages').delete().eq('id', id);
+    setMessages((prev) => prev.filter((msg) => msg.id !== id));
+  };
+
+  const markAsRead = async (id) => {
+    await supabase.from('messages').update({ read: true }).eq('id', id);
+    setMessages((prev) =>
+      prev.map((msg) =>
+        msg.id === id ? { ...msg, read: true } : msg
+      )
+    );
+  };
+
+  const totalPages = Math.ceil(messages.length / messagesPerPage);
+  const currentMessages = messages.slice(
+    (currentPage - 1) * messagesPerPage,
+    currentPage * messagesPerPage
+  );
 
   return (
     <div className="p-6 max-w-6xl mx-auto">
@@ -159,18 +181,52 @@ const AdminPage = () => {
         {messages.length === 0 ? (
           <p>No messages yet.</p>
         ) : (
-          <ul className="space-y-4">
-            {messages.map((msg) => (
-              <li key={msg.id} className="border-b pb-3">
-                <p><strong>Name:</strong> {msg.name}</p>
-                <p><strong>Email:</strong> {msg.email}</p>
-                <p><strong>Message:</strong> {msg.message}</p>
-                <p className="text-sm text-gray-500">
-                  Sent on {new Date(msg.created_at).toLocaleString()}
-                </p>
-              </li>
+          <div className="space-y-4">
+            {currentMessages.map((msg) => (
+              <div
+                key={msg.id}
+                onClick={() => !msg.read && markAsRead(msg.id)}
+                className={`border p-4 rounded-lg cursor-pointer ${
+                  !msg.read ? 'border-blue-500 font-semibold bg-blue-50' : 'border-gray-300'
+                }`}
+              >
+                <div className="flex justify-between items-start">
+                  <div>
+                    <p><strong>Name:</strong> {msg.name}</p>
+                    <p><strong>Email:</strong> {msg.email}</p>
+                    <p><strong>Message:</strong> {msg.message}</p>
+                    <p className="text-sm text-gray-500">
+                      Sent on {new Date(msg.created_at).toLocaleString()}
+                    </p>
+                  </div>
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      deleteMessage(msg.id);
+                    }}
+                    className="text-red-500 hover:underline text-sm"
+                  >
+                    Delete
+                  </button>
+                </div>
+              </div>
             ))}
-          </ul>
+
+            {/* Pagination */}
+            <div className="flex justify-center gap-2 mt-4">
+              {Array.from({ length: totalPages }, (_, i) => (
+                <button
+                  key={i}
+                  onClick={() => setCurrentPage(i + 1)}
+                  className={`px-3 py-1 rounded border ${
+                    currentPage === i + 1 ? 'bg-blue-600 text-white' : 'bg-gray-200'
+                  }`}
+                >
+                  {i + 1}
+                </button>
+              ))}
+            </div>
+          </div>
         )}
       </div>
     </div>
