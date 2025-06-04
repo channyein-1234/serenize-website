@@ -47,15 +47,17 @@ const RegisterForm = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
+  
+    // Validate form fields
     const validationErrors = validate();
     if (Object.keys(validationErrors).length > 0) {
       setErrors(validationErrors);
       return;
     }
-
+  
     setErrors({});
-
+  
+    // Attempt to register the user
     const { data, error } = await supabase.auth.signUp({
       email: form.email,
       password: form.password,
@@ -66,36 +68,37 @@ const RegisterForm = () => {
         }
       }
     });
-
+  
     if (error) {
       alert('Sign-up failed: ' + error.message);
       return;
     }
-
+  
     const user = data.user;
-
+  
+    // If user was created, insert additional info into custom users table
     if (user) {
-      // Insert into custom users table
       const { error: insertError } = await supabase.from('users').insert([
         {
-          id: user.id, // Must match the auth user ID
+          id: user.id, // Link to auth user ID
           name: form.name,
           email: form.email,
           phone: form.phone,
           role: 'user'
         }
       ]);
-
+  
       if (insertError) {
         console.error('Insert into users table failed:', insertError);
         alert('Something went wrong saving your profile.');
         return;
       }
     }
-
-    // Show the confirmation message instead of navigating immediately
+  
+    // Show email confirmation screen (DO NOT navigate to login yet)
     setShowConfirmation(true);
   };
+  
 
   if (showConfirmation) {
     return (
