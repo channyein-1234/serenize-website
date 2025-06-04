@@ -1,0 +1,179 @@
+.registerForm-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 40px 20px;
+    background: linear-gradient(to right, #ffafbd, #ffc3a0); /* soft pink gradient */
+    min-height:100vh;
+  }
+  
+  form {
+    background-color: rgb(251, 247, 247);
+    padding: 30px;
+    border-radius: 8px;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+    width: 100%;
+    max-width: 400px;
+  }
+  .previous-btn{
+    width: 50px;
+  }
+  form h2 {
+    font-size: 24px;
+    margin-bottom: 20px;
+    font-weight: bold;
+    text-align: center;
+  }
+  
+  .mb-4 {
+    margin-bottom: 16px;
+  }
+  
+  label {
+    display: block;
+    margin-bottom: 6px;
+    font-weight: 600;
+    color: #090505;
+  }
+  
+  input {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1px solid #e3c2c2;
+    border-radius: 5px;
+    font-size: 14px;
+    box-sizing: border-box;
+  }
+  
+  input:focus {
+    border-color: #e0bebe;
+    outline: none;
+  }
+  
+  button {
+    width: 100%;
+    padding: 10px 16px;
+    background-color: #ed789f;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    font-size: 15px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+  }
+  
+  button:hover {
+    background-color: #d23e7b;
+  }
+  
+  .error-message {
+    color: rgb(216, 34, 34);
+    font-size: 0.875rem; /* equivalent to text-sm */
+    margin-top: 4px;
+    font-weight: bold;
+  }
+  
+
+  @media (max-width: 630px) {
+    form {
+      max-width: 320px;
+      padding: 20px;
+    }
+  
+    .previous-btn {
+      width: 30px;
+      font-size: 13px;
+      padding: 4px 0;
+      margin-bottom: 10px;
+    }
+  
+    .submit-btn {
+      font-size: 14px;
+      padding: 8px 12px;
+    }
+  
+    input {
+      padding: 8px 10px;
+      font-size: 13px;
+    }
+  
+    form h2 {
+      font-size: 20px;
+    }
+  
+    label {
+      font-size: 13px;
+    }
+  
+    .text-red-500 {
+      font-size: 12px;
+    }
+  }
+  @media (max-width: 490px) {
+    form {
+      max-width: 280px;
+      padding: 16px;
+    }
+  
+    .previous-btn {
+      width: 26px;
+      font-size: 12px;
+      padding: 3px 0;
+      margin-bottom: 8px;
+    }
+  
+    .submit-btn {
+      font-size: 13px;
+      padding: 7px 10px;
+    }
+  
+    input {
+      padding: 7px 9px;
+      font-size: 12px;
+    }
+  
+    form h2 {
+      font-size: 18px;
+    }
+  
+    label {
+      font-size: 12px;
+    }
+  
+    .text-red-500 {
+      font-size: 11px;
+    }
+  }
+  
+  @media (max-width: 320px) {
+    form {
+      max-width: 240px;
+      padding: 12px;
+    }
+  
+    .previous-btn {
+      width: 22px;
+      font-size: 10px;
+      padding: 2px 0;
+    }
+  
+    .submit-btn {
+      font-size: 12px;
+      padding: 6px 8px;
+    }
+  
+    input {
+      padding: 6px 8px;
+      font-size: 11px;
+    }
+  
+    form h2 {
+      font-size: 16px;
+    }
+  
+    label {
+      font-size: 11px;
+    }
+  
+  }
+  

@@ -1,0 +1,264 @@
+/* planning.css */
+
+/* General Layout */
+.page-container {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    font-family: sans-serif;
+    color: black;
+    background-color: #ffe6f0; /* light pink background */
+    margin: 0;
+    padding: 0;
+  }
+  
+  /* Navbar and Footer (Assumes navbar and footer are styled in their own files) */
+  nav, footer {
+    margin: 0;
+    padding: 0;
+  }
+  
+  /* Calendar Strip */
+  .calendar-strip {
+    display: flex;
+    overflow-x: auto;
+    white-space: nowrap;
+    background-color: #ffb6c1; /* soft pink */
+    padding: 10px 0;
+    border-bottom: 2px solid #ccc;
+  }
+  
+  .calendar-day {
+    flex: 0 0 auto;
+    width: 60px;
+    text-align: center;
+    margin: 0 5px;
+    padding: 5px;
+    border-radius: 10px;
+    cursor: pointer;
+    font-weight: bold;
+  }
+  
+  .calendar-day.today {
+    background-color: #6ec6ff; /* blue for today */
+    color: black;
+  }
+  
+  .calendar-day.past {
+    background-color: #d3d3d3; /* grey */
+    color: black;
+    cursor: not-allowed;
+    opacity: 0.6;
+  }
+  
+  .calendar-day.future {
+    background-color: #ff69b4; /* brighter pink */
+    color: black;
+  }
+  
+  .calendar-day.selected {
+    border: 2px solid #000;
+  }
+  
+  /* Main Sections */
+  .planning-container {
+    flex: 1;
+    padding: 0 10px;
+  }
+  
+  .main-sections {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    gap: 20px;
+    flex-wrap: wrap;
+    margin-top: 20px;
+  }
+  
+  /* Task Section */
+  .task-container {
+    flex: 1;
+    min-width: 300px;
+    padding: 10px;
+    background: white;
+    border-radius: 10px;
+  }
+  
+  .task-input {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    margin-bottom: 10px;
+  }
+  
+  .task-input input[type="text"],
+  .task-input input[type="time"],
+  .reminder-inputs input[type="text"],
+  .reminder-inputs input[type="time"] {
+    width: 200px;
+    padding: 10px;
+    font-size: 14px;
+    height: 38px;
+    border-radius: 6px;
+  }
+  
+
+  
+  .task-input button, 
+  .reminder-set-btn {
+    width: 100px;
+    font-size: 12px;
+    padding: 8px 10px;
+    min-width: 80px;
+    height: 38px;
+    border-radius: 6px;
+    background-color: #ff69b4;
+    color: black;
+    border: none;
+    cursor: pointer;
+  }
+  
+  .task-input button:hover {
+    background-color: #ff85c1;
+  }
+  
+  .task-list {
+    list-style: none;
+    padding-left: 0;
+  }
+  
+  .task-item {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    margin-bottom: 5px;
+  }
+  
+  .task-item input[type="checkbox"] {
+    margin-right: 5px;
+  }
+  
+  .task-item button {
+    font-size: 12px;
+    padding: 8px 10px;
+    min-width: 80px;
+    height: 38px;
+    border-radius: 6px;
+    background-color: #ff69b4;
+    color: black;
+    border: none;
+    cursor: pointer;
+  }
+  
+  .task-item button:hover {
+    background-color: #ff85c1;
+  }
+  
+  /* Reminder Section */
+  .reminder-container {
+    flex: 1;
+    min-width: 300px;
+    padding: 10px;
+    background: white;
+    border-radius: 10px;
+  }
+  
+  .reminder-inputs {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    margin-bottom: 10px;
+  }
+  
+ 
+  
+  .reminder-add-btn {
+    font-size: 12px;
+    padding: 8px 10px;
+    max-width: 300px;
+    height: 38px; 
+    border-radius: 6px;
+    background-color: #ff69b4;
+    color: black;
+    border: none;
+    cursor: pointer;
+  }
+  
+  .reminder-set-btn:hover {
+    background-color: #fb93c7;
+  }
+  
+  .reminder-list {
+    list-style: none;
+    padding-left: 0;
+  }
+  
+  .reminder-list li {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    margin-bottom: 5px;
+  }
+  
+  .reminder-list button {
+    font-size: 12px;
+    padding: 8px 10px;
+    min-width: 80px;
+    height: 38px;
+    border-radius: 6px;
+    background-color: #ff69b4;
+    color: black;
+    border: none;
+    cursor: pointer;
+  }
+  
+  .reminder-list button:hover {
+    background-color: #ff85c1;
+  }
+  
+  /* AI Routine Section */
+  .ai-routine-section {
+    margin-top: 30px;
+    padding: 15px;
+    background-color: white;
+    border-radius: 10px;
+  }
+  
+  /* Readonly Message */
+  .readonly-msg {
+    font-style: italic;
+    color: #555;
+  }
+  
+  /* No Tasks/Reminders */
+  .no-tasks,
+  .no-reminders {
+    font-style: italic;
+    color: #555;
+  }
+  
+  .note-carousel-section {
+    margin: 30px auto;
+    max-width: 600px;
+    text-align: center;
+  }
+  
+  .note-carousel-item {
+    background: #fff8f0;
+    padding: 20px;
+    border-radius: 8px;
+    min-height: 150px;
+    position: relative;
+  }
+  
+  .note-actions {
+    margin-top: 10px;
+  }
+  
+  .note-actions button {
+    margin: 0 5px;
+    padding: 5px 10px;
+  }
+  
+  
+  

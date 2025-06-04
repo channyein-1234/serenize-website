@@ -1,0 +1,115 @@
+@import url('https://fonts.googleapis.com/css2?family=Quicksand:wght@400;600&display=swap');
+
+:root {
+  --primary-purple: #deaad5;
+  --accent-blue: #aee3f7;
+  --accent-green: #c1f0c1;
+  --accent-purple: #e0b3ff;
+  --text-dark: #333;
+  --background: #f8f3f4;
+  --card-bg: #ffe4ec;
+  --border-radius: 16px;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  font-family: 'Quicksand', sans-serif;
+  background-color: var(--background);
+  color: var(--text-dark);
+}
+
+.wellness-container {
+  padding: 2rem;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.intro {
+  text-align: center;
+  margin-bottom: 2rem;
+  background-color: var(--primary-purple);
+  padding: 1.5rem;
+  border-radius: var(--border-radius);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+.intro h1 {
+  font-size: 2.5rem;
+  margin-bottom: 0.5rem;
+  color: rgb(249, 246, 246);
+}
+
+.intro p {
+  font-size: 1.2rem;
+  color: #292323;
+}
+
+.scrollable-videos h2,
+.ai-suggestions h2 {
+  font-size: 2rem;
+  margin-bottom: 1rem;
+  color: var(--text-dark);
+  text-align: center;
+  background-color: rgb(244, 214, 244);
+  border-radius: 30px;
+  border: 2px dashed var(--primary-purple);
+}
+
+.video-scroll {
+  display: flex;
+  gap: 1rem;
+  overflow-x: auto;
+  padding-bottom: 1rem;
+}
+
+.video-card {
+  flex: 0 0 300px;
+  background: var(--card-bg);
+  padding: 1rem;
+  border-radius: var(--border-radius);
+  text-align: center;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  transition: transform 0.2s ease;
+}
+
+.video-card:hover {
+  transform: scale(1.03);
+}
+
+.video-card p {
+  font-weight: 600;
+  margin-top: 0.5rem;
+  color: #444;
+}
+
+.ai-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 1.5rem;
+  margin-top: 1rem;
+}
+
+.activity-card {
+  background: linear-gradient(135deg, var(--accent-blue), var(--accent-purple));
+  padding: 1rem;
+  border-radius: var(--border-radius);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  text-align: center;
+  transition: transform 0.2s ease;
+}
+
+.activity-card:hover {
+  transform: scale(1.03);
+}
+
+.activity-card p {
+  font-weight: bold;
+  margin-top: 0.5rem;
+  color: white;
+  font-size: 1.1rem;
+}
+
+iframe {
+  border-radius: var(--border-radius);
+}

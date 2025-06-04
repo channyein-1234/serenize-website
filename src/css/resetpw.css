@@ -1,0 +1,115 @@
+/* src/css/resetPassword.css */
+
+.reset-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    background: linear-gradient(to right, #ffafbd, #ffc3a0); /* same pink gradient */
+  }
+  
+  .reset-container form {
+    background-color: rgb(251, 247, 247);
+    padding: 40px;
+    border-radius: 12px;
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.2);
+    width: 320px;
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .reset-container h2 {
+    margin-bottom: 20px;
+    color: #eb7ca7;
+    text-align: center;
+    font-size: 24px;
+  }
+  
+  .reset-container input {
+    padding: 10px;
+    border: 1px solid #e3c2c2;
+    border-radius: 8px;
+    margin-bottom: 15px;
+    font-size: 14px;
+  }
+  
+  .reset-container button {
+    background-color: #eb7ca7;
+    color: white;
+    border: none;
+    padding: 12px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: bold;
+    font-size: 16px;
+    transition: background-color 0.3s ease;
+  }
+  
+  .reset-container button:hover {
+    background-color: #d23e7b;
+  }
+  
+  /* Responsive styles like the login page */
+  @media (max-width: 570px) {
+    .reset-container form {
+      width: 280px;
+      padding: 24px;
+    }
+  
+    .reset-container h2 {
+      font-size: 20px;
+    }
+  
+    .reset-container input {
+      font-size: 13px;
+      padding: 8px;
+    }
+  
+    .reset-container button {
+      font-size: 14px;
+      padding: 10px;
+    }
+  }
+  
+  @media (max-width: 380px) {
+    .reset-container form {
+      width: 220px;
+      padding: 16px;
+    }
+  
+    .reset-container h2 {
+      font-size: 16px;
+    }
+  
+    .reset-container input {
+      font-size: 11px;
+      padding: 6px;
+    }
+  
+    .reset-container button {
+      font-size: 12px;
+      padding: 8px;
+    }
+  }
+  
+  @media (max-width: 320px) {
+    .reset-container form {
+      width: 200px;
+      padding: 12px;
+    }
+  
+    .reset-container h2 {
+      font-size: 14px;
+    }
+  
+    .reset-container input {
+      font-size: 10px;
+      padding: 5px;
+    }
+  
+    .reset-container button {
+      font-size: 11px;
+      padding: 6px;
+    }
+  }
+  
