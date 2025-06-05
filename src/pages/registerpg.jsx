@@ -48,60 +48,54 @@ const RegisterForm = () => {
 
     return newErrors;
   };
-
   const handleSubmit = async (e) => {
     e.preventDefault();
+  
     setError('');
     setSuccess(false);
-
-    // Call validate and handle errors
+  
     const validationErrors = validate();
-    if (Object.keys(validationErrors).length > 0) {
-      setErrors(validationErrors);
-      return; // Stop submit if validation fails
-    }
-    setErrors({}); // Clear errors if validation passes
-
-    // Step 1: Register with Supabase Auth
-    const { data, error: signUpError } = await supabase.auth.signUp({
-      email: form.email,
-      password: form.password
-    });
-
-    if (signUpError) {
-      console.error('Signup failed:', signUpError.message);
-      setError(signUpError.message);
-      return;
-    }
-
-    const userId = data?.user?.id;
-    if (!userId) {
-      setError('User registration failed: missing user ID.');
-      return;
-    }
-
-    // Step 2: Insert or update into users table with explicit onConflict
-    const { error: insertError } = await supabase
-      .from('users')
-      .upsert(
+    setErrors(validationErrors);
+  
+    if (Object.keys(validationErrors).length > 0) return;
+  
+    try {
+      const { user, error: signUpError } = await supabase.auth.signUp({
+        email: form.email,
+        password: form.password,
+      });
+  
+      if (signUpError) {
+        setError(signUpError.message);
+        return;
+      }
+  
+      // Insert additional user data into the profiles table
+      const { error: dbError } = await supabase.from('profiles').insert([
         {
-          id: userId,
+          id: user.id,
           name: form.name,
           phone: form.phone,
-          created_at: new Date().toISOString()
         },
-        { onConflict: 'id' }  // This tells Supabase to do UPSERT based on the 'id' column
-      );
-
-    if (insertError) {
-      console.error('Insert into users table failed:', insertError);
-      setError(insertError.message || 'Something went wrong saving your profile.');
-      return;
+      ]);
+  
+      if (dbError) {
+        setError('User created but failed to save profile info: ' + dbError.message);
+        return;
+      }
+  
+      setSuccess(true);
+      setForm({ name: '', email: '', phone: '', password: '' });
+  
+      // Redirect to login or dashboard
+      setTimeout(() => navigate('/login'), 2000);
+    } catch (err) {
+      setError('Unexpected error: ' + err.message);
     }
-
-    setSuccess(true);
-    navigate('/success'); // Redirect after success
   };
+  
+
+  
 
   return (
     <div className="registerForm-container">
