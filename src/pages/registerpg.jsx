@@ -14,7 +14,7 @@ const RegisterForm = () => {
   });
 
   const [errors, setErrors] = useState({});
-  const [showConfirmation, setShowConfirmation] = useState(false); // New state for showing confirmation screen
+  const [showConfirmation, setShowConfirmation] = useState(false);
 
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
@@ -32,14 +32,16 @@ const RegisterForm = () => {
       newErrors.email = 'Input a valid email address (@gmail.com)';
     }
 
-    const password = form.password;
-    const hasLetter = /[a-zA-Z]/.test(password);
-    const hasNumber = /\d/.test(password);
-    const hasSpecial = /[^a-zA-Z0-9]/.test(password);
+    if (form.password) {
+      const password = form.password;
+      const hasLetter = /[a-zA-Z]/.test(password);
+      const hasNumber = /\d/.test(password);
+      const hasSpecial = /[^a-zA-Z0-9]/.test(password);
 
-    if (password && (!hasLetter || !hasNumber || !hasSpecial)) {
-      newErrors.password =
-        'Create a password that contains letters, numbers, and special characters';
+      if (!hasLetter || !hasNumber || !hasSpecial) {
+        newErrors.password =
+          'Create a password that contains letters, numbers, and special characters';
+      }
     }
 
     return newErrors;
@@ -47,63 +49,42 @@ const RegisterForm = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-  
-    // Validate form fields
+
     const validationErrors = validate();
     if (Object.keys(validationErrors).length > 0) {
       setErrors(validationErrors);
       return;
     }
-  
+
     setErrors({});
-  
-    // Attempt to register the user
-    const { data, error } = await supabase.auth.signUp({
+
+    const { error } = await supabase.auth.signUp({
       email: form.email,
       password: form.password,
+      options: {
+        data: {
+          name: form.name,
+          phone: form.phone
+        }
+      }
     });
-  
+
     if (error) {
       alert('Sign-up failed: ' + error.message);
       return;
     }
-  
-    const user = data.user;
-  
-    // If user was created, insert additional info into custom users table
-    if (user) {
-      const { error: insertError } = await supabase.from('users').insert([
-        {
-          id: user.id, // Link to auth user ID
-          name: form.name,
-          email: form.email,
-          phone: form.phone,
-          role: 'user'
-        }
-      ]);
-  
-      if (insertError) {
-        console.error('Insert into users table failed:', insertError);
-        alert('Something went wrong saving your profile.'+ insertError.message);
-        return;
-      }
-    }
-  
-    // Show email confirmation screen (DO NOT navigate to login yet)
+
     setShowConfirmation(true);
   };
-  
 
   if (showConfirmation) {
     return (
       <div className="registerForm-container max-w-md mx-auto bg-white p-6 rounded shadow">
         <h2 className="text-2xl font-bold mb-4">Confirm Your Email</h2>
         <p>
-          Thank you for registering, <strong>{form.name}</strong>! <br />
-          We have sent a confirmation email to <strong>{form.email}</strong>.
-          <br />
-          Please check your inbox and click the confirmation link to activate
-          your account.
+          Thank you for registering, <strong>{form.name}</strong>!<br />
+          A confirmation email has been sent to <strong>{form.email}</strong>.<br />
+          Please check your inbox and confirm to activate your account.
         </p>
         <button
           className="mt-6 w-full bg-blue-500 text-white py-2 rounded hover:bg-blue-600"
