@@ -13,7 +13,7 @@ const RegisterForm = () => {
     password: ''
   });
 
-  const [errors, setErrors] = useState({});
+  const [errors] = useState({});
   const [error, setError] = useState('');
   const [success, setSuccess] = useState(false);
 
@@ -52,51 +52,45 @@ const RegisterForm = () => {
     e.preventDefault();
     setError('');
     setSuccess(false);
-
-    const validationErrors = validate();
-    if (Object.keys(validationErrors).length > 0) {
-      setErrors(validationErrors);
-      return;
-    }
-
-    setErrors({});
-
+  
     // Step 1: Register with Supabase Auth
     const { data, error: signUpError } = await supabase.auth.signUp({
       email: form.email,
       password: form.password
     });
-
+  
     if (signUpError) {
+      console.error('Signup failed:', signUpError.message);
       setError(signUpError.message);
       return;
     }
-
+  
     const userId = data?.user?.id;
     if (!userId) {
       setError('User registration failed: missing user ID.');
       return;
     }
-
-    // Step 2: Insert into your custom `users` table (without storing email again)
+  
+    // Step 2: Insert or update into users table
     const { error: insertError } = await supabase
       .from('users')
-      .insert({
+      .upsert({
         id: userId,
         name: form.name,
         phone: form.phone,
         created_at: new Date().toISOString()
       });
-
+  
     if (insertError) {
-      setError(insertError.message);
+      console.error('Insert into users table failed:', insertError);
+      setError(insertError.message || 'Something went wrong saving your profile.');
       return;
     }
-
+  
     setSuccess(true);
-    // Optionally navigate after registration
-    setTimeout(() => navigate('/login'), 1500);
+    navigate('/success'); // Or wherever you want to go after success
   };
+  
 
   return (
     <div className="registerForm-container">
