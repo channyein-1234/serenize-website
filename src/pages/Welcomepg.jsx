@@ -22,7 +22,7 @@ const WelcomePage = () => {
       <div className="buttons-group">
         <h4>"Already have an account!"</h4>
           <div className='btn-container'>
-            <Link to="/register">
+            <Link to="/login">
               <button className="action-button">Sign In</button>
             </Link>
           </div>
