@@ -11,13 +11,9 @@ const RegisterForm = () => {
     email: '',
     phone: '',
     password: '',
-    role: 'user',
   });
 
   const [errors, setErrors] = useState({});
-  const [error, setError] = useState('');
-  const [success, setSuccess] = useState(false);
-
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
@@ -34,16 +30,14 @@ const RegisterForm = () => {
       newErrors.email = 'Input a valid email address (@gmail.com)';
     }
 
-    if (form.password) {
-      const password = form.password;
-      const hasLetter = /[a-zA-Z]/.test(password);
-      const hasNumber = /\d/.test(password);
-      const hasSpecial = /[^a-zA-Z0-9]/.test(password);
+    const password = form.password;
+    const hasLetter = /[a-zA-Z]/.test(password);
+    const hasNumber = /\d/.test(password);
+    const hasSpecial = /[^a-zA-Z0-9]/.test(password);
 
-      if (!hasLetter || !hasNumber || !hasSpecial) {
-        newErrors.password =
-          'Create a password that contains letters, numbers, and special characters';
-      }
+    if (password && (!hasLetter || !hasNumber || !hasSpecial)) {
+      newErrors.password =
+        'Create a password that contains letters, numbers, and special characters';
     }
 
     return newErrors;
@@ -51,57 +45,52 @@ const RegisterForm = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
-    setError('');
-    setSuccess(false);
-
+  
+    // Validate form fields
     const validationErrors = validate();
-    setErrors(validationErrors);
-    if (Object.keys(validationErrors).length > 0) return;
-
-    try {
-      // 1. Sign up user with Supabase Auth (no profile info here)
-      const { data, error: signUpError } = await supabase.auth.signUp({
-        email: form.email,
-        password: form.password,
-      });
-
-      if (signUpError) {
-        setError(signUpError.message);
-        return;
-      }
-
-      const user = data.user;
-      if (!user) {
-        setError('User registration failed. Please try again.');
-        return;
-      }
-
-      // 2. Insert profile data into your "profiles" table
-      const { error: profileError } = await supabase.from('profiles').insert([
+    if (Object.keys(validationErrors).length > 0) {
+      setErrors(validationErrors);
+      return;
+    }
+  
+    setErrors({});
+  
+    // Attempt to register the user
+    const { data, error } = await supabase.auth.signUp({
+      email: form.email,
+      password: form.password,
+    });
+  
+    if (error) {
+      alert('Sign-up failed: ' + error.message);
+      return;
+    }
+  
+    const user = data.user;
+  
+    // If user was created, insert additional info into custom users table
+    if (user) {
+      const { error: insertError } = await supabase.from('profiles').insert([
         {
-          id: user.id,       // Important: match auth user id
-          email: form.email,
+          id: user.id, // Link to auth user ID
           name: form.name,
           phone: form.phone,
-          role: form.role,
-        },
+          role: 'user'
+        }
       ]);
-
-      if (profileError) {
-        setError('User created but failed to save profile info: ' + profileError.message);
+  
+      if (insertError) {
+        console.error('Insert into users table failed:', insertError);
+        alert('Something went wrong saving your profile.'+ insertError.message);
         return;
       }
-
-      // Success: clear form, show message, and navigate to login after delay
-      setSuccess(true);
-      setForm({ name: '', email: '', phone: '', password: '', role: 'user' });
-
-      setTimeout(() => navigate('/login'), 2000);
-    } catch (err) {
-      setError('Unexpected error: ' + err.message);
+      alert('Registration successful! You can now log in.');
+      navigate('/login'); 
     }
+  
+    
   };
+  
 
   return (
     <div className="registerForm-container">
@@ -170,9 +159,6 @@ const RegisterForm = () => {
           />
           {errors.password && <p className="error-message">{errors.password}</p>}
         </div>
-
-        {error && <p className="text-red-500 mb-4">{error}</p>}
-        {success && <p className="text-green-600 mb-4">Registration successful! Redirecting...</p>}
 
         <button
           type="submit"
