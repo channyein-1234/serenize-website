@@ -11,7 +11,7 @@ const RegisterForm = () => {
     email: '',
     phone: '',
     password: '',
-    role: 'user', // default role
+    role: 'user',
   });
 
   const [errors, setErrors] = useState({});
@@ -57,21 +57,13 @@ const RegisterForm = () => {
 
     const validationErrors = validate();
     setErrors(validationErrors);
-
     if (Object.keys(validationErrors).length > 0) return;
 
     try {
-      // Sign up with metadata (including role)
+      // 1. Sign up user with Supabase Auth (no profile info here)
       const { data, error: signUpError } = await supabase.auth.signUp({
         email: form.email,
         password: form.password,
-        options: {
-          data: {
-            name: form.name,
-            phone: form.phone,
-            role: form.role, // sends role to raw_user_meta_data
-          },
-        },
       });
 
       if (signUpError) {
@@ -79,17 +71,16 @@ const RegisterForm = () => {
         return;
       }
 
-      const userId = data?.user?.id;
-
-      if (!userId) {
+      const user = data.user;
+      if (!user) {
         setError('User registration failed. Please try again.');
         return;
       }
 
-      // Insert into profiles table
-      const { error: dbError } = await supabase.from('profiles').insert([
+      // 2. Insert profile data into your "profiles" table
+      const { error: profileError } = await supabase.from('profiles').insert([
         {
-          id: userId,
+          id: user.id,       // Important: match auth user id
           email: form.email,
           name: form.name,
           phone: form.phone,
@@ -97,11 +88,12 @@ const RegisterForm = () => {
         },
       ]);
 
-      if (dbError) {
-        setError('User created but failed to save profile info: ' + dbError.message);
+      if (profileError) {
+        setError('User created but failed to save profile info: ' + profileError.message);
         return;
       }
 
+      // Success: clear form, show message, and navigate to login after delay
       setSuccess(true);
       setForm({ name: '', email: '', phone: '', password: '', role: 'user' });
 
@@ -180,7 +172,7 @@ const RegisterForm = () => {
         </div>
 
         {error && <p className="text-red-500 mb-4">{error}</p>}
-        {success && <p className="text-green-600 mb-4">Registration successful!</p>}
+        {success && <p className="text-green-600 mb-4">Registration successful! Redirecting...</p>}
 
         <button
           type="submit"
