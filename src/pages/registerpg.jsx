@@ -49,34 +49,40 @@ const RegisterForm = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
+  
     const validationErrors = validate();
     if (Object.keys(validationErrors).length > 0) {
       setErrors(validationErrors);
       return;
     }
-
+  
     setErrors({});
-
+  
     const { error } = await supabase.auth.signUp({
       email: form.email,
       password: form.password,
       options: {
         data: {
           name: form.name,
-          phone: form.phone
-        }
-      }
+          phone: form.phone,
+        },
+      },
     });
-
-    if (error) {
+  
+    // If it's a serious error, show it
+    if (error && !error.message.includes('saving your profile')) {
       alert('Sign-up failed: ' + error.message);
       return;
     }
-
+  
+    // Show alert to check email (even if 'saving your profile' error happened)
+    alert(`A confirmation email has been sent to ${form.email}. Please check your inbox to activate your account.`);
+  
+    // Show confirmation UI
     setShowConfirmation(true);
   };
-
+  
+  
   if (showConfirmation) {
     return (
       <div className="registerForm-container max-w-md mx-auto bg-white p-6 rounded shadow">
