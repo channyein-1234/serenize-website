@@ -14,7 +14,8 @@ const RegisterForm = () => {
   });
 
   const [errors, setErrors] = useState({});
-  const [showConfirmation, setShowConfirmation] = useState(false);
+  const [error, setError] = useState('');
+  const [success, setSuccess] = useState(false);
 
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
@@ -49,58 +50,53 @@ const RegisterForm = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-  
+    setError('');
+    setSuccess(false);
+
     const validationErrors = validate();
     if (Object.keys(validationErrors).length > 0) {
       setErrors(validationErrors);
       return;
     }
-  
+
     setErrors({});
-  
-    const { error } = await supabase.auth.signUp({
+
+    // Step 1: Register with Supabase Auth
+    const { data, error: signUpError } = await supabase.auth.signUp({
       email: form.email,
-      password: form.password,
-      options: {
-        data: {
-          name: form.name,
-          phone: form.phone,
-        },
-      },
+      password: form.password
     });
-  
-    // If it's a serious error, show it
-    if (error && !error.message.includes('saving your profile')) {
-      alert('Sign-up failed: ' + error.message);
+
+    if (signUpError) {
+      setError(signUpError.message);
       return;
     }
-  
-    // Show alert to check email (even if 'saving your profile' error happened)
-    alert(`A confirmation email has been sent to ${form.email}. Please check your inbox to activate your account.`);
-  
-    // Show confirmation UI
-    setShowConfirmation(true);
+
+    const userId = data?.user?.id;
+    if (!userId) {
+      setError('User registration failed: missing user ID.');
+      return;
+    }
+
+    // Step 2: Insert into your custom `users` table (without storing email again)
+    const { error: insertError } = await supabase
+      .from('users')
+      .insert({
+        id: userId,
+        name: form.name,
+        phone: form.phone,
+        created_at: new Date().toISOString()
+      });
+
+    if (insertError) {
+      setError(insertError.message);
+      return;
+    }
+
+    setSuccess(true);
+    // Optionally navigate after registration
+    setTimeout(() => navigate('/login'), 1500);
   };
-  
-  
-  if (showConfirmation) {
-    return (
-      <div className="registerForm-container max-w-md mx-auto bg-white p-6 rounded shadow">
-        <h2 className="text-2xl font-bold mb-4">Confirm Your Email</h2>
-        <p>
-          Thank you for registering, <strong>{form.name}</strong>!<br />
-          A confirmation email has been sent to <strong>{form.email}</strong>.<br />
-          Please check your inbox and confirm to activate your account.
-        </p>
-        <button
-          className="mt-6 w-full bg-blue-500 text-white py-2 rounded hover:bg-blue-600"
-          onClick={() => navigate('/login')}
-        >
-          Go to Login
-        </button>
-      </div>
-    );
-  }
 
   return (
     <div className="registerForm-container">
@@ -169,6 +165,9 @@ const RegisterForm = () => {
           />
           {errors.password && <p className="error-message">{errors.password}</p>}
         </div>
+
+        {error && <p className="text-red-500 mb-4">{error}</p>}
+        {success && <p className="text-green-600 mb-4">Registration successful!</p>}
 
         <button
           type="submit"
