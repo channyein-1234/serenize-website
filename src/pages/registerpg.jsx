@@ -10,7 +10,8 @@ const RegisterForm = () => {
     name: '',
     email: '',
     phone: '',
-    password: ''
+    password: '',
+    role: 'user', // default role
   });
 
   const [errors, setErrors] = useState({});
@@ -21,7 +22,6 @@ const RegisterForm = () => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
-  // Validation function called on submit
   const validate = () => {
     const newErrors = {};
 
@@ -48,54 +48,68 @@ const RegisterForm = () => {
 
     return newErrors;
   };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
-  
+
     setError('');
     setSuccess(false);
-  
+
     const validationErrors = validate();
     setErrors(validationErrors);
-  
+
     if (Object.keys(validationErrors).length > 0) return;
-  
+
     try {
-      const { user, error: signUpError } = await supabase.auth.signUp({
+      // Sign up with metadata (including role)
+      const { data, error: signUpError } = await supabase.auth.signUp({
         email: form.email,
         password: form.password,
+        options: {
+          data: {
+            name: form.name,
+            phone: form.phone,
+            role: form.role, // sends role to raw_user_meta_data
+          },
+        },
       });
-  
+
       if (signUpError) {
         setError(signUpError.message);
         return;
       }
-  
-      // Insert additional user data into the profiles table
+
+      const userId = data?.user?.id;
+
+      if (!userId) {
+        setError('User registration failed. Please try again.');
+        return;
+      }
+
+      // Insert into profiles table
       const { error: dbError } = await supabase.from('profiles').insert([
         {
-          id: user.id,
+          id: userId,
+          email: form.email,
           name: form.name,
           phone: form.phone,
+          role: form.role,
         },
       ]);
-  
+
       if (dbError) {
         setError('User created but failed to save profile info: ' + dbError.message);
         return;
       }
-  
+
       setSuccess(true);
-      setForm({ name: '', email: '', phone: '', password: '' });
-  
-      // Redirect to login or dashboard
+      setForm({ name: '', email: '', phone: '', password: '', role: 'user' });
+
       setTimeout(() => navigate('/login'), 2000);
     } catch (err) {
       setError('Unexpected error: ' + err.message);
     }
   };
-  
-
-  
 
   return (
     <div className="registerForm-container">
