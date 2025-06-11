@@ -60,55 +60,65 @@ function urlBase64ToUint8Array(base64String) {
 
 async function subscribeUserToPush() {
   if ('serviceWorker' in navigator) {
-    const registration = await navigator.serviceWorker.ready;
+    const registration = await navigator.serviceWorker.register('/sw.js');
+  console.log('Service Worker registered:', registration);
+  
+  const subscription = await registration.pushManager.subscribe({
+    userVisibleOnly: true,
+    applicationServerKey: urlBase64ToUint8Array(publicVapidKey),
+  });
 
-    const subscription = await registration.pushManager.subscribe({
-      userVisibleOnly: true,
-      applicationServerKey: urlBase64ToUint8Array(publicVapidKey),
-    });
+  console.log('Push subscription:', subscription);
 
-    console.log('Push subscription:', subscription);
 
     // Send subscription to your backend server
     await fetch('http://localhost:4000/subscribe', {
       method: 'POST',
-      body: JSON.stringify(subscription),
-      headers: {
-        'Content-Type': 'application/json',
-      },
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ userId, subscription }),
     });
-
+    
     // Save to Supabase
-    await saveSubscriptionToBackend(subscription);
+      const { data, error } = await supabase
+        .from('push_subscriptions')
+        .insert([
+          {
+            user_id: userId, // Ensure this is defined and a UUID string
+            subscription: subscription,
+            created_at: new Date().toISOString(),
+          }
+        ], { onConflict: ['user_id'] }); // To update existing subscription if user already exists
+    
+      if (error) {
+        console.error('Error saving subscription:', error);
+      } else {
+        console.log('Subscription saved:', data);
+    }
   }
 }
 
 
 
-// Example: function to send subscription to your backend
-async function saveSubscriptionToBackend(subscription) {
-  // Replace with your Supabase insert or API call to save subscription JSON
-  await supabase.from('push_subscriptions').insert([{ user_id: userId, subscription }]);
-}
 
 
   //  Ask notification permission 
   async function askNotificationPermission() {
-    const permission = await Notification.requestPermission();
-    if (permission === 'granted') {
-      console.log('Notification permission granted.');
-      subscribeUserToPush(); 
+    if (typeof window !== 'undefined' && 'Notification' in window) {
+      try {
+        const permission = await Notification.requestPermission();
+        if (permission === 'granted') {
+          console.log('Notification permission granted.');
+          subscribeUserToPush(); 
+        } else {
+          console.log('Notification permission denied.');
+        }
+      } catch (error) {
+        console.error('Notification permission error:', error);
+      }
     } else {
-      console.log('Notification permission denied.');
+      console.warn('Notification API not supported in this environment.');
     }
   }
-  
-  
-
-  
-
-  
-
   
 
   // Generate calendar dates for the strip
@@ -375,7 +385,7 @@ async function saveSubscriptionToBackend(subscription) {
         </div>
 
         <div className="main-sections">
-        <button onClick={askNotificationPermission}>Enable Reminders</button>
+         <button onClick={askNotificationPermission}>Enable Reminders</button>
 
           <div className="task-container">
             <h2>Tasks for {selectedDate.toDateString()}</h2>
