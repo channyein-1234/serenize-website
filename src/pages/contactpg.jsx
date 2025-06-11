@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import "../css/contactpg.css";
 import Navbar from "./navbar";
 import Footer from "./footerpg";
+import supabase from './supabaseClient';
 
 const Contact = () => {
   const [formData, setFormData] = useState({
@@ -17,13 +18,38 @@ const Contact = () => {
     }));
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log("Message submitted:", formData);
-    alert("Thank you for reaching out. We'll get back to you soon! 💌");
-    // You can integrate with EmailJS, Formspree, or your backend here
-    setFormData({ name: "", email: "", message: "" });
+  
+    const {
+      data: { user },
+      error: userError
+    } = await supabase.auth.getUser();
+  
+    if (userError || !user) {
+      alert("User not authenticated.");
+      return;
+    }
+  
+    const { error } = await supabase.from('messages').insert([
+      {
+        name: formData.name,
+        email: formData.email,
+        message: formData.message,
+        created_at: new Date().toISOString(),
+        user_id: user.id, 
+      },
+    ]);
+  
+    if (error) {
+      console.error("Insert error:", error.message);
+      alert("Something went wrong. Please try again.");
+    } else {
+      alert("Thank you for reaching out. We'll get back to you soon! 💌");
+      setFormData({ name: "", email: "", message: "" });
+    }
   };
+  
 
   return (
     <div className="page-container">

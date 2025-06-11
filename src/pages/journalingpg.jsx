@@ -1,15 +1,11 @@
 import { ReactSketchCanvas } from "react-sketch-canvas";
 import { useRef, useState, useEffect } from "react";
 import { Rnd } from "react-rnd";
-import { createClient } from '@supabase/supabase-js';
 import "../css/journalingpg.css";
 import Navbar from "./navbar";
 import Footer from "./footerpg";
+import supabase from "./supabaseClient"; 
 
-const supabase = createClient(
-  process.env.REACT_APP_SUPABASE_URL,
-  process.env.REACT_APP_SUPABASE_ANON_KEY
-);
 
 const stickers = [
   "/stickers/star.png",

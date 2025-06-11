@@ -10,10 +10,12 @@ const RegisterForm = () => {
     name: '',
     email: '',
     phone: '',
-    password: '',
+    password: ''
   });
 
   const [errors, setErrors] = useState({});
+  const [showConfirmation, setShowConfirmation] = useState(false); // New state for showing confirmation screen
+
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
@@ -60,6 +62,10 @@ const RegisterForm = () => {
       email: form.email,
       password: form.password,
     });
+    
+    console.log(data);
+
+    
   
     if (error) {
       alert('Sign-up failed: ' + error.message);
@@ -70,27 +76,49 @@ const RegisterForm = () => {
   
     // If user was created, insert additional info into custom users table
     if (user) {
-      const { error: insertError } = await supabase.from('profiles').insert([
+      const { error: insertError } = await supabase.from('users').insert([
         {
-          id: user.id, // Link to auth user ID
+          id: user.id, // UUID string now matches column type
           name: form.name,
+          email: form.email,
           phone: form.phone,
           role: 'user'
         }
       ]);
+      
   
       if (insertError) {
         console.error('Insert into users table failed:', insertError);
         alert('Something went wrong saving your profile.'+ insertError.message);
         return;
       }
-      alert('Registration successful! You can now log in.');
-      navigate('/login'); 
     }
   
-    
+    // Show email confirmation screen (DO NOT navigate to login yet)
+    setShowConfirmation(true);
   };
   
+
+  if (showConfirmation) {
+    return (
+      <div className="registerForm-container max-w-md mx-auto bg-white p-6 rounded shadow">
+        <h2 className="text-2xl font-bold mb-4">Confirm Your Email</h2>
+        <p>
+          Thank you for registering, <strong>{form.name}</strong>! <br />
+          We have sent a confirmation email to <strong>{form.email}</strong>.
+          <br />
+          Please check your inbox and click the confirmation link to activate
+          your account.
+        </p>
+        <button
+          className="mt-6 w-full bg-blue-500 text-white py-2 rounded hover:bg-blue-600"
+          onClick={() => navigate('/login')}
+        >
+          Go to Login
+        </button>
+      </div>
+    );
+  }
 
   return (
     <div className="registerForm-container">

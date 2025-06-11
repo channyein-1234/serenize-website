@@ -1,10 +1,6 @@
 import React, { useState } from 'react';
-import { createClient } from '@supabase/supabase-js';
 import '../css/resetpw.css';
-const supabase = createClient(
-  process.env.REACT_APP_SUPABASE_URL,
-  process.env.REACT_APP_SUPABASE_ANON_KEY
-);
+import supabase from './supabaseClient';
 
 const ResetPassword = () => {
   const [newPassword, setNewPassword] = useState('');
