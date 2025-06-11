@@ -72,7 +72,7 @@ async function subscribeUserToPush() {
 
 
     // Send subscription to your backend server
-    await fetch('http://localhost:4000/subscribe', {
+    await fetch('https://serenize.vercel.app/api/subscribe', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ userId, subscription }),
