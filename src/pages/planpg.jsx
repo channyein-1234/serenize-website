@@ -83,7 +83,7 @@ async function subscribeUserToPush() {
         .from('push_subscriptions')
         .insert([
           {
-            user_id: userId, // Ensure this is defined and a UUID string
+            user_id: userId, 
             subscription: subscription,
             created_at: new Date().toISOString(),
           }
@@ -93,6 +93,7 @@ async function subscribeUserToPush() {
         console.error('Error saving subscription:', error);
       } else {
         console.log('Subscription saved:', data);
+        
     }
   }
 }
