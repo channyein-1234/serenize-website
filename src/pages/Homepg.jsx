@@ -151,7 +151,7 @@ useEffect(() => {
   
       const { data, error } = await supabase
         .from('reminders')
-        .select('id, title, date, time, done')
+        .select('id, title, date, time, sent')
         .eq('user_id', user.id)
         .eq('date', today)
         .order('time', { ascending: true });
