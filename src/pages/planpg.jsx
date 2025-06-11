@@ -72,7 +72,7 @@ async function subscribeUserToPush() {
 
 
     // Send subscription to your backend server
-    await fetch('https://serenize.vercel.app/api/subscribe', {
+    await fetch('/api/sentReminder', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ userId, subscription }),
