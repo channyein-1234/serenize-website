@@ -13,43 +13,55 @@ const LoginForm = () => {
 
   const handleSignIn = async () => {
     setLoading(true);
-    const { data, error } = await supabase.auth.signInWithPassword({
+  
+    const { error: signInError } = await supabase.auth.signInWithPassword({
       email,
       password,
     });
+  
+    if (signInError) {
+      setLoading(false);
+      console.error('Error signing in:', signInError.message);
+      alert('Login failed: ' + signInError.message);
+      return;
+    }
+  
+    // Wait for the session to be available
+    const { data: sessionData, error: sessionError } = await supabase.auth.getSession();
     setLoading(false);
-
-    if (error) {
-      console.error('Error signing in:', error.message);
-      alert('Login failed: ' + error.message);
+  
+    if (sessionError || !sessionData?.session?.user) {
+      console.error('Session error:', sessionError?.message);
+      alert('Login failed: Could not get user session.');
+      return;
+    }
+  
+    const userEmail = sessionData.session.user.email;
+  
+    // Fetch user role from your custom `users` table
+    const { data: userData, error: fetchError } = await supabase
+      .from('users')
+      .select('role')
+      .eq('email', userEmail)
+      .single();
+  
+    if (fetchError || !userData) {
+      console.error('Error fetching user role:', fetchError?.message);
+      alert('Could not retrieve user role.');
+      return;
+    }
+  
+    const role = userData.role;
+    console.log('User role:', role);
+  
+    // Navigate based on role
+    if (role === 'admin') {
+      navigate('/admin');
     } else {
-      const userId = data.user.id;
-
-      // Fetch user role
-      const { data: userData, error: fetchError } = await supabase
-        .from('users')
-        .select('role')
-        .eq('id', userId)
-        .single();
-
-      if (fetchError || !userData) {
-        console.error('Error fetching user role:', fetchError?.message);
-        alert('Could not retrieve user role.');
-        return;
-      }
-
-      const role = userData.role;
-      console.log('User role:', role);
-
-      // Navigate based on role
-      if (role === 'admin') {
-        navigate('/admin');
-      } else {
-        navigate('/home');
-      }
-
+      navigate('/home');
     }
   };
+  
 
   const handleForgetPassword = async () => {
     if (!email) {

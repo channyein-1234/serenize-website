@@ -1,5 +1,5 @@
 // src/App.js
-import React from 'react';
+import React  from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import HomePage from './pages/Homepg';
 import WelcomePage from './pages/Welcomepg';
@@ -13,12 +13,40 @@ import Contact from './pages/contactpg';
 import Chatbot from './pages/chatbot';
 import AdminPage from './pages/adminpg'; // <-- Assuming you have this page
 import RouteRestriction from './pages/routeRestriction';
+import UserProfile from './pages/userProfile';
 
 function App() {
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('/sw.js').then(function (registration) {
+      console.log('Service Worker registered with scope:', registration.scope);
+    }).catch(function (error) {
+      console.error('Service Worker registration failed:', error);
+    });
+  }
+  
+  
   return (
+    // <Router>
+    //   <Routes>
+    //     {/* Public Routes */}
+    //     <Route path="/" element={<WelcomePage />} />
+    //     <Route path="/login" element={<LoginForm />} />
+    //     <Route path="/register" element={<RegisterForm />} />
+    //     <Route path="/reset-password" element={<ResetPassword />} />
+
+    //     {/* Unrestricted Routes */}
+    //     <Route path="/home" element={<HomePage />} />
+    //     <Route path="/planning" element={<Planning />} />
+    //     <Route path="/journaling" element={<JournalEditor />} />
+    //     <Route path="/wellness" element={<Wellness />} />
+    //     <Route path="/contact" element={<Contact />} />
+    //     <Route path="/chatbot" element={<Chatbot />} />
+    //     <Route path="/profile" element={<UserProfile />} />
+    //     <Route path="/admin" element={<AdminPage />} />
+    //   </Routes>
+    // </Router>
     <Router>
       <Routes>
-        
         {/* Public Routes */}
         <Route path="/" element={<WelcomePage />} />
         <Route path="/login" element={<LoginForm />} />
@@ -75,6 +103,14 @@ function App() {
             </RouteRestriction>
           }
         />
+        <Route
+          path="/userprofile"
+          element={
+            <RouteRestriction requiredRole="user">
+              <UserProfile/>
+            </RouteRestriction>
+          }
+        />
 
 
         {/* Admin-only Route */}
@@ -92,3 +128,6 @@ function App() {
 }
 
 export default App;
+
+
+

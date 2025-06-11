@@ -1,15 +1,13 @@
 import React, { useEffect, useState, useRef } from 'react';
 import '../css/planning.css';
-import { createClient } from '@supabase/supabase-js';
+import supabase from './supabaseClient';
 import Navbar from './navbar';
 import Footer from './footerpg';
 import { Carousel } from 'react-responsive-carousel';
+import { DragDropContext, Droppable, Draggable } from '@hello-pangea/dnd';
 import 'react-responsive-carousel/lib/styles/carousel.min.css';
 
-const supabase = createClient(
-  process.env.REACT_APP_SUPABASE_URL,
-  process.env.REACT_APP_SUPABASE_ANON_KEY
-);
+
 
 const Planning = () => {
   const [selectedDate, setSelectedDate] = useState(new Date());
@@ -30,12 +28,90 @@ const Planning = () => {
   const [notes, setNotes] = useState([]);
   const [editingNoteId, setEditingNoteId] = useState(null);
   const [noteEditText, setNoteEditText] = useState('');
-
-
   const today = new Date();
   const todayISO = today.toISOString().split('T')[0];
   const selectedISO = selectedDate.toISOString().split('T')[0];
+  const publicVapidKey = 'BO4D32FzaA1l70RXJVotNlRBrytEPObPzDhBlHMKsime4hYYvNaj9qUjt_YTc2q5lmQhcLfLgNmpzRyN4B99oQU';
+//Retrieving user from supabase
+useEffect(() => {
+  const getUser = async () => {
+    const { data, error } = await supabase.auth.getUser();
+    if (error) {
+      console.error('Error fetching user:', error);
+      return;
+    }
+    setUserId(data.user?.id || null);
+  };
+  getUser();
+}, []);
 
+function urlBase64ToUint8Array(base64String) {
+  const padding = '='.repeat((4 - (base64String.length % 4)) % 4);
+  const base64 = (base64String + padding).replace(/-/g, '+').replace(/_/g, '/');
+  const rawData = window.atob(base64);
+  const outputArray = new Uint8Array(rawData.length);
+  for (let i = 0; i < rawData.length; ++i) {
+    outputArray[i] = rawData.charCodeAt(i);
+  }
+  return outputArray;
+}
+
+// Function to subscribe user to push notifications
+
+async function subscribeUserToPush() {
+  if ('serviceWorker' in navigator) {
+    const registration = await navigator.serviceWorker.ready;
+
+    const subscription = await registration.pushManager.subscribe({
+      userVisibleOnly: true,
+      applicationServerKey: urlBase64ToUint8Array(publicVapidKey),
+    });
+
+    console.log('Push subscription:', subscription);
+
+    // Send subscription to your backend server
+    await fetch('http://localhost:4000/subscribe', {
+      method: 'POST',
+      body: JSON.stringify(subscription),
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+
+    // Save to Supabase
+    await saveSubscriptionToBackend(subscription);
+  }
+}
+
+
+
+// Example: function to send subscription to your backend
+async function saveSubscriptionToBackend(subscription) {
+  // Replace with your Supabase insert or API call to save subscription JSON
+  await supabase.from('push_subscriptions').insert([{ user_id: userId, subscription }]);
+}
+
+
+  //  Ask notification permission 
+  async function askNotificationPermission() {
+    const permission = await Notification.requestPermission();
+    if (permission === 'granted') {
+      console.log('Notification permission granted.');
+      subscribeUserToPush(); 
+    } else {
+      console.log('Notification permission denied.');
+    }
+  }
+  
+  
+
+  
+
+  
+
+  
+
+  // Generate calendar dates for the strip
   const calendarDates = [];
   for (let i = -15; i <= 15; i++) {
     const date = new Date();
@@ -44,17 +120,24 @@ const Planning = () => {
   }
 
   useEffect(() => {
-    const getUser = async () => {
-      const { data, error } = await supabase.auth.getUser();
-      if (error) {
-        console.error('Error fetching user:', error);
-        return;
-      }
-      setUserId(data.user?.id || null);
-    };
-    getUser();
+    const todayElement = document.querySelector('.calendar-day.today');
+    if (todayElement && calendarStripRef.current) {
+      calendarStripRef.current.scrollTo({
+        left: todayElement.offsetLeft - 100,
+        behavior: 'smooth',
+      });
+    }
   }, []);
 
+  // Function to reorder the tasks after drag
+  const reorderTasks = (list, startIndex, endIndex) => {
+    const result = Array.from(list);
+    const [removed] = result.splice(startIndex, 1);
+    result.splice(endIndex, 0, removed);
+    return result;
+  };
+
+  //fetching tasks and reminders from supabase
   useEffect(() => {
     if (!userId) return;
 
@@ -87,16 +170,8 @@ const Planning = () => {
     fetchReminders();
   }, [selectedDate, selectedISO, userId]);
 
-  useEffect(() => {
-    const todayElement = document.querySelector('.calendar-day.today');
-    if (todayElement && calendarStripRef.current) {
-      calendarStripRef.current.scrollTo({
-        left: todayElement.offsetLeft - 100,
-        behavior: 'smooth',
-      });
-    }
-  }, []);
-
+  
+  //Fetching notes from the supabase
   useEffect(() => {
     const fetchNotes = async () => {
       if (!userId) return;
@@ -113,7 +188,7 @@ const Planning = () => {
     fetchNotes();
   }, [userId]);
   
-
+  //adding new task to supabase
   const handleAddTask = async () => {
     if (!newTask.trim() || !userId) return;
 
@@ -135,18 +210,23 @@ const Planning = () => {
     }
   };
 
+  // Function to toggle task done status
   const toggleDone = async (id, current) => {
     if (!editingEnabled) return;
-    const { error } = await supabase.from('tasks').update({ done: !current }).eq('id', id);
+    const { error } = await supabase.from('tasks').update({ done: true }).eq('id', id);
     if (error) console.error('Error updating task:', error);
     else setSelectedDate(new Date(selectedDate));
   };
+
+  //deleting task from supabase
 
   const handleDeleteTask = async (id) => {
     const { error } = await supabase.from('tasks').delete().eq('id', id);
     if (error) console.error('Error deleting task:', error);
     else setSelectedDate(new Date(selectedDate));
   };
+
+  // Updating task in supabase
 
   const handleEditTask = (task) => {
     setEditingTaskId(task.id);
@@ -170,14 +250,8 @@ const Planning = () => {
     }
   };
 
-  const moveTask = async (index, direction) => {
-    const newTasks = [...tasks];
-    const targetIndex = direction === 'up' ? index - 1 : index + 1;
-    if (targetIndex < 0 || targetIndex >= tasks.length) return;
-    [newTasks[index], newTasks[targetIndex]] = [newTasks[targetIndex], newTasks[index]];
-    setTasks(newTasks);
-  };
 
+  //Setting a reminder in supabase
   const handleSetReminder = async (index) => {
     if (!userId) return;
     const { text, time } = reminderInputs[index];
@@ -196,17 +270,35 @@ const Planning = () => {
     }
   };
 
+  //Updating reminder in supabase
   const updateReminderInput = (index, key, value) => {
     const updated = [...reminderInputs];
     updated[index][key] = value;
     setReminderInputs(updated);
   };
 
+  //Asking reminder for reminder permission
+
+  useEffect(() => {
+    if ('Notification' in window && 'serviceWorker' in navigator) {
+      Notification.requestPermission().then((permission) => {
+        if (permission === 'granted') {
+          console.log('Notification permission granted.');
+        }
+      });
+    }
+  }, []);
+  
+
+  //Deleting reminder from supabase
+
   const handleDeleteReminder = async (id) => {
     const { error } = await supabase.from('reminders').delete().eq('id', id);
     if (error) console.error('Error deleting reminder:', error);
     else setSelectedDate(new Date(selectedDate));
   };
+
+  //Updaing edited reminder in supabase
 
   const handleEditReminder = (reminder) => {
     setEditingReminderId(reminder.id);
@@ -226,6 +318,8 @@ const Planning = () => {
       setSelectedDate(new Date(selectedDate));
     }
   };
+
+  //Editing notes and Updating in supabase
   const handleEditNote = (note) => {
     setEditingNoteId(note.id);
     setNoteEditText(note.note);
@@ -246,6 +340,7 @@ const Planning = () => {
     }
   };
   
+  //Deleting notes from supabase
   const handleDeleteNote = async (id) => {
     const { error } = await supabase.from('notes').delete().eq('id', id);
     if (error) console.error('Error deleting note:', error);
@@ -280,6 +375,8 @@ const Planning = () => {
         </div>
 
         <div className="main-sections">
+        <button onClick={askNotificationPermission}>Enable Reminders</button>
+
           <div className="task-container">
             <h2>Tasks for {selectedDate.toDateString()}</h2>
             {editingEnabled ? (
@@ -300,49 +397,77 @@ const Planning = () => {
             ) : (
               <p className="readonly-msg">Cannot add tasks for past dates.</p>
             )}
-            <ul className="task-list">
-              {tasks.length === 0 ? (
-                <li className="no-tasks">No tasks for this day.</li>
-              ) : (
-                tasks.map((task, index) => (
-                  <li key={task.id} className={`task-item ${task.done ? 'task-done' : ''}`}>
-                    <input
-                      type="checkbox"
-                      checked={task.done}
-                      onChange={() => toggleDone(task.id, task.done)}
-                      disabled={!editingEnabled}
-                    />
-                    {editingTaskId === task.id ? (
-                      <>
-                        <input
-                          type="text"
-                          value={taskEditText}
-                          onChange={(e) => setTaskEditText(e.target.value)}
-                        />
-                        <input
-                          type="time"
-                          value={taskEditTime}
-                          onChange={(e) => setTaskEditTime(e.target.value)}
-                        />
-                        <button onClick={saveTaskEdit}>Save</button>
-                      </>
-                    ) : (
-                      <>
-                        {task.task} {task.time && `(${task.time})`}
-                        {editingEnabled && (
-                          <>
-                            <button onClick={() => handleEditTask(task)}>Edit</button>
-                            <button onClick={() => handleDeleteTask(task.id)}>Delete</button>
-                            <button onClick={() => moveTask(index, 'up')}>⬆️</button>
-                            <button onClick={() => moveTask(index, 'down')}>⬇️</button>
-                          </>
-                        )}
-                      </>
-                    )}
-                  </li>
-                ))
-              )}
-            </ul>
+            <DragDropContext
+                onDragEnd={(result) => {
+                  if (!result.destination) return;
+                  const reordered = reorderTasks(tasks, result.source.index, result.destination.index);
+                  setTasks(reordered); // Update local state
+                  // Optional: Update Supabase order here
+                }}
+              >
+                <Droppable droppableId="taskList">
+                  {(provided) => (
+                    <ul
+                      className="task-list"
+                      {...provided.droppableProps}
+                      ref={provided.innerRef}
+                    >
+                      {tasks.length === 0 ? (
+                        <li className="no-tasks">No tasks for this day.</li>
+                      ) : (
+                        tasks.map((task, index) => (
+                          <Draggable key={task.id} draggableId={String(task.id)} index={index}>
+                            {(provided) => (
+                              <li
+                                ref={provided.innerRef}
+                                {...provided.draggableProps}
+                                {...provided.dragHandleProps}
+                                className={`task-item ${task.done ? 'task-done' : ''}`}
+                              >
+                                <div className="tasks">
+                                  <input
+                                    type="checkbox"
+                                    checked={task.done}
+                                    onChange={() => toggleDone(task.id, task.done)}
+                                    disabled={!editingEnabled}
+                                  />
+                                  {editingTaskId === task.id ? (
+                                    <>
+                                      <input
+                                        type="text"
+                                        value={taskEditText}
+                                        onChange={(e) => setTaskEditText(e.target.value)}
+                                      />
+                                      <input
+                                        type="time"
+                                        value={taskEditTime}
+                                        onChange={(e) => setTaskEditTime(e.target.value)}
+                                      />
+                                      <button onClick={saveTaskEdit}>Save</button>
+                                    </>
+                                  ) : (
+                                    <span className="task-text">
+                                      {task.task} {task.time && `(${task.time})`}
+                                    </span>
+                                  )}
+                                </div>
+
+                                {editingEnabled && editingTaskId !== task.id && (
+                                  <div className="task-actions">
+                                    <button className='action-btn'  onClick={() => handleEditTask(task)}>Edit</button>
+                                    <button className='action-btn' onClick={() => handleDeleteTask(task.id)}>Delete</button>
+                                  </div>
+                                )}
+                              </li>
+                            )}
+                          </Draggable>
+                        ))
+                      )}
+                      {provided.placeholder}
+                    </ul>
+                  )}
+                </Droppable>
+              </DragDropContext>
           </div>
 
           <div className="reminder-container">
@@ -377,6 +502,7 @@ const Planning = () => {
               ) : (
                 reminders.map(reminder => (
                   <li key={reminder.id} className="reminder-item">
+                    <div className='tasks'>
                     {editingReminderId === reminder.id ? (
                       <>
                         <input
@@ -396,12 +522,15 @@ const Planning = () => {
                         {reminder.title} {reminder.time && `(${reminder.time})`}
                         {editingEnabled && (
                           <>
-                            <button onClick={() => handleEditReminder(reminder)}>Edit</button>
-                            <button onClick={() => handleDeleteReminder(reminder.id)}>Delete</button>
+                            <div className='task-actions'>
+                              <button className='action-btn' onClick={() => handleEditReminder(reminder)}>Edit</button>
+                            <button className='action-btn' onClick={() => handleDeleteReminder(reminder.id)}>Delete</button>
+                            </div>
                           </>
                         )}
                       </>
                     )}
+                    </div>
                   </li>
                 ))
               )}
@@ -465,5 +594,4 @@ const Planning = () => {
     </div>
   );
 };
-
 export default Planning;

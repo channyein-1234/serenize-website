@@ -2,7 +2,7 @@ import React from 'react';
 import logo from '../img/serenize_logo.png';
 import '../css/navbar.css';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faMarker, faBook, faSpa, faRobot, faLink } from '@fortawesome/free-solid-svg-icons';
+import { faMarker, faBook, faUser, faSpa, faRobot, faLink } from '@fortawesome/free-solid-svg-icons';
 import { Link } from 'react-router-dom';
 
 
@@ -12,8 +12,9 @@ const Navbar = () => {
       <div className='sub-container'>
       
         <div className='logo-container'>
-          <img className='logo' src={logo} alt='Logo' />
-          <h3>Serenize</h3>
+        <Link to="/home">
+           <img className="logo" src={logo} alt="Logo" style={{ cursor: 'pointer' }} />
+</Link>          <h3>Serenize</h3>
         </div>
 
         <div className='emoji-divider'>
@@ -32,6 +33,8 @@ const Navbar = () => {
   <Link to="/wellness"><button><FontAwesomeIcon icon={faSpa} /><br /> Wellness</button></Link>
   <Link to="/chatbot"><button><FontAwesomeIcon icon={faRobot} /><br /> Chatbot</button></Link>
   <Link to="/contact"><button><FontAwesomeIcon icon={faLink} /><br /> Contact</button></Link>
+  <Link to="/userprofile"><button><FontAwesomeIcon icon={faUser} /><br />Profile</button></Link>
+
 </nav>
       </div>
     </div>

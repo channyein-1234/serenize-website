@@ -1,10 +1,11 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import Calendar from 'react-calendar';
 import '../css/homepg.css';
 import Navbar from './navbar';
 import Footer from './footerpg';
-import { useUser } from '@supabase/auth-helpers-react';
-import { createClient } from '@supabase/supabase-js';
+import supabase from './supabaseClient';
+import { format } from 'date-fns';
+
 import {
   LineChart,
   Line,
@@ -15,11 +16,6 @@ import {
   ResponsiveContainer
 } from 'recharts';
 
-const supabase = createClient(
-  process.env.REACT_APP_SUPABASE_URL,
-  process.env.REACT_APP_SUPABASE_ANON_KEY
-);
-
 const moodScores = {
   "Happy": 5,
   "Content": 4,
@@ -28,159 +24,282 @@ const moodScores = {
   "Angry": 1,
 };
 
+
 const HomePage = () => {
+  const [user, setUser] = useState(null);
+  const [status, setStatus] = useState('Loading...');
   const [date, setDate] = useState(new Date());
   const [activeStartDate, setActiveStartDate] = useState(new Date());
-  const [mood, setMood] = useState(null);
-  const [difficulty, setDifficulty] = useState(null);
+  const [mood, setMood] = useState('');
+  const [difficulty, setDifficulty] = useState('');
   const [reminders, setReminders] = useState([]);
   const [goals, setGoals] = useState([]);
   const [newGoal, setNewGoal] = useState('');
   const [quickNote, setQuickNote] = useState('');
+  const [editingNoteId, setEditingNoteId] = useState(null);
   const [moodData, setMoodData] = useState([]);
+  const today = new Date().toISOString().split('T')[0]; // Format: 'YYYY-MM-DD'
+  const [notes, setNotes] = useState([]);
+  const [, setUpdateMessage] = useState('');
 
-  const user = useUser();
-
-  
 
   useEffect(() => {
-    const fetchGoalsAndReminders = async () => {
-      const selectedDate = date.toISOString().split('T')[0];
-
-      if (user) {
-        const { data: goalsData, error } = await supabase
-          .from('goals')
-          .select('*')
-          .eq('user_id', user.id)
-          .eq('date', selectedDate)
-          .order('created_at', { ascending: true });
-
-        if (error) {
-          console.error('Error fetching goals:', error.message);
-        } else {
-          setGoals(goalsData);
-        }
+    const fetchUser = async () => {
+      const {
+        data: { user },
+        error,
+      } = await supabase.auth.getUser();
+  
+      if (error || !user) {
+        setStatus('Error fetching user');
+        return;
       }
-
-      const storedReminders = JSON.parse(localStorage.getItem('reminders')) || [];
-      const dateReminders = storedReminders.filter(r => r.date === selectedDate);
-      setReminders(dateReminders);
+  
+      setUser(user);
+      setStatus('Loaded');
     };
+  
+    fetchUser();
+  }, []);
+  
 
-    fetchGoalsAndReminders();
-  }, [date, user]);
+useEffect(() => {
+  const fetchGoals = async () => {
+    const today = format(new Date(), 'yyyy-MM-dd'); // format to 'YYYY-MM-DD'
+
+    const { data, error } = await supabase
+      .from('goals')
+      .select('*')
+      .eq('user_id', user.id)
+      .eq('date', today)
+      .order('created_at', { ascending: true });
+
+    if (error) {
+      console.error('Error fetching today\'s goals:', error);
+    } else {
+      setGoals(data);
+    }
+  };
+
+  if (user) {
+    fetchGoals();
+  }
+}, [user]);
+
+
+const fetchNotes = useCallback(async () => {
+  if (!user) return;
+
+  const today = new Date().toISOString().split('T')[0];
+
+  const { data, error } = await supabase
+    .from('notes')
+    .select('*')
+    .eq('user_id', user.id)
+    .eq('date', today)
+    .order('created_at', { ascending: true });
+
+  if (error) {
+    console.error('Error fetching notes:', error);
+  } else {
+    setNotes(data);
+    if (data.length > 0 && data[0].text) {
+      setQuickNote(data[0].text);
+      setEditingNoteId(null);
+    } else {
+      setQuickNote('');
+    }
+  }
+}, [user]);
+
+useEffect(() => {
+  fetchNotes();
+}, [fetchNotes]);
+
+
+
 
   useEffect(() => {
     const fetchMoodData = async () => {
       if (!user) return;
-
+  
       const { data, error } = await supabase
         .from('moods')
-        .select('created_at, mood')
+        .select('mood, created_at')
         .eq('user_id', user.id)
         .order('created_at', { ascending: true });
-
+  
       if (error) {
-        console.error('Error fetching mood data:', error.message);
-      } else {
-        const formattedData = data.map(entry => ({
-          date: new Date(entry.created_at).toISOString().split('T')[0],
-          moodScore: moodScores[entry.mood] || 0,
-        }));
-        setMoodData(formattedData);
+        console.error('Error fetching mood data:', error);
+        return;
       }
+  
+      const formattedData = data.map((entry) => ({
+        date: new Date(entry.created_at).toLocaleDateString(),
+        moodScore: moodScores[entry.mood] || 0, // fallback in case mood is missing
+      }));
+  
+      setMoodData(formattedData);
     };
-
+  
     fetchMoodData();
   }, [user]);
-
+  
+  useEffect(() => {
+    const fetchReminders = async () => {
+      const today = new Date().toISOString().split('T')[0];
+  
+      const { data, error } = await supabase
+        .from('reminders')
+        .select('id, title, date, time, done')
+        .eq('user_id', user.id)
+        .eq('date', today)
+        .order('time', { ascending: true });
+  
+      if (error) {
+        console.error('Error fetching reminders:', error);
+      } else {
+        setReminders(data);
+      }
+    };
+  
+    if (user) {
+      fetchReminders();
+    }
+  }, [user]);
+  
+  
   const handleGoalAdd = async () => {
     if (!newGoal.trim() || !user) return;
-
-    const selectedDate = date.toISOString().split('T')[0];
-
-    const { data, error } = await supabase.from('goals').insert([
-      {
-        user_id: user.id,
-        text: newGoal.trim(),
-        date: selectedDate,
-        done: false,
-      },
-    ]);
-
+  
+    const { data, error } = await supabase
+      .from('goals')
+      .insert([{ goal: newGoal, user_id: user.id, done: false, date: today }])
+      .select();
+  
     if (error) {
-      console.error('Error adding goal:', error.message);
-    } else {
-      setGoals(prev => [...prev, ...data]);
-      setNewGoal('');
+      console.error('Error adding goal:', error);
+      return;
     }
+  
+    setGoals((prevGoals) => [...prevGoals, ...data]);
+    setNewGoal('');
   };
-
-  const toggleGoalDone = async (id, currentStatus) => {
+  
+  const toggleGoalDone = async (id, currentDone) => {
     const { error } = await supabase
       .from('goals')
-      .update({ done: !currentStatus })
+      .update({ done: !currentDone })
       .eq('id', id);
-
+  
     if (error) {
-      console.error('Error updating goal status:', error.message);
-    } else {
-      setGoals(prev =>
-        prev.map(goal =>
-          goal.id === id ? { ...goal, done: !currentStatus } : goal
-        )
-      );
+      console.error('Error toggling goal done status:', error);
+      return;
     }
+  
+    setGoals((prev) =>
+      prev.map((goal) =>
+        goal.id === id ? { ...goal, done: !currentDone } : goal
+      )
+    );
   };
-
+  
   const handleGoalDelete = async (id) => {
-    const { error } = await supabase.from('goals').delete().eq('id', id);
-
+    const { error } = await supabase
+      .from('goals')
+      .delete()
+      .eq('id', id);
+  
     if (error) {
-      console.error('Error deleting goal:', error.message);
+      console.error('Error deleting goal:', error);
+      return;
+    }
+  
+    setGoals((prev) => prev.filter((goal) => goal.id !== id));
+  };
+  
+  
+  
+  const handleSaveQuickNote = async () => {
+    if (notes.length > 0) {
+      alert("You've already added a note today. You can edit it instead.");
+      return;
+    }
+  
+    const today = new Date().toISOString().split('T')[0];
+  
+    const { data, error } = await supabase.from('notes').insert([
+      {
+        user_id: user.id,
+        text: quickNote,
+        date: today,
+      },
+    ]).select();
+  
+    if (error) {
+      console.error('Error saving note:', error);
     } else {
-      setGoals(prev => prev.filter(goal => goal.id !== id));
+      const newNote = data[0];
+      setEditingNoteId(newNote.id); // Start editing right after save
+      setNotes([newNote]); //  Set notes with the new one
     }
   };
+  
+  
+  const handleUpdateQuickNote = async () => {
+    const { error } = await supabase
+      .from('notes')
+      .update({ text: quickNote, updated_at: new Date().toISOString() }) // use 'note' if that's your column name
+      .eq('id', editingNoteId);
+  
+    if (error) {
+      console.error('Error updating note:', error);
+    } else {
+      fetchNotes(); // Refresh notes in UI
+      setUpdateMessage(' Note updated!');
+      setEditingNoteId(null); // Exit edit mode if needed
+      setTimeout(() => setUpdateMessage(''), 3000); // Hide after 3s
+    }
+  };
+  
+  
 
+
+  
+  
+  
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!user || !mood || !difficulty) return;
-
+  
+    if (!user || !mood || !difficulty) {
+      alert("Please select both mood and difficulty.");
+      return;
+    }
+  
     const { error } = await supabase.from('moods').insert([
       {
         user_id: user.id,
         mood,
         difficulty,
-      },
+      }
     ]);
-
+  
     if (error) {
-      console.error('Error saving mood entry:', error.message);
-    } else {
-      alert('Mood entry submitted!');
-      setMood(null);
-      setDifficulty(null);
+      console.error('Error saving mood entry:', error);
+      alert("There was an error saving your entry.");
+      return;
     }
+  
+    alert("Mood entry submitted!");
+    // Optionally clear selections
+    setMood('');
+    setDifficulty('');
   };
+  
+ 
+  
+  
 
-  const handleSaveQuickNote = async () => {
-    if (!quickNote.trim() || !user) return;
-
-    const { error } = await supabase.from('quick_notes').insert([
-      {
-        note: quickNote.trim(),
-        user_id: user.id,
-      },
-    ]);
-
-    if (error) {
-      console.error('Error saving quick note:', error.message);
-    } else {
-      alert('Quick note saved!');
-      setQuickNote('');
-    }
-  };
 
   const moods = [
     { emoji: "😄", label: "Happy" },
@@ -192,20 +311,25 @@ const HomePage = () => {
 
   const difficulties = ["Easy", "Moderate", "Hard"];
 
+  if (!user) return <div>{status}</div>;
+
   return (
     <div className="page-container">
       <Navbar />
 
       <div className='home-container'>
         <div className="top-section">
-          <div className="reminder-box">
+        <div className="reminder-box">
             <h3>Today's Reminders</h3>
             <div className='reminder-container'>
-              {reminders.length === 0 ? <p>No reminders today.</p> : (
+              {reminders.length === 0 ? (
+                <p>No reminders today.</p>
+              ) : (
                 <ul>
-                  {reminders.map((rem, idx) => (
-                    <li key={idx}>
-                      <input className='check-box' type="checkbox" /> {rem.time} - {rem.title}
+                  {reminders.map((rem) => (
+                    <li key={rem.id}>
+                      <input className='check-box' type="checkbox" checked={rem.done} readOnly />
+                      {rem.time} - {rem.title}
                     </li>
                   ))}
                 </ul>
@@ -243,17 +367,17 @@ const HomePage = () => {
           <div className="goals-box">
             <h3>Today's Goals</h3>
             <ul>
-              {goals.length === 0 ? (
+              {goals.filter(goal => !goal.done).length === 0 ? (
                 <p>No goals for this day.</p>
               ) : (
-                goals.map(goal => (
+                goals.filter(goal => !goal.done).map(goal => (
                   <li key={goal.id}>
                     <input
                       type="checkbox"
                       checked={goal.done}
                       onChange={() => toggleGoalDone(goal.id, goal.done)}
                     />
-                    <span className={goal.done ? 'goal-done' : ''}>{goal.text}</span>
+                    <span>{goal.goal}</span>
                     <button onClick={() => handleGoalDelete(goal.id)} className="delete-goal-btn">❌</button>
                   </li>
                 ))
@@ -267,7 +391,7 @@ const HomePage = () => {
               onChange={(e) => setNewGoal(e.target.value)}
             />
             <div className='button-container'>
-              <button onClick={handleGoalAdd}>Add Goal</button>
+              <button onClick={handleGoalAdd} className="action-btn">Add Goal</button>
             </div>
           </div>
 
@@ -277,10 +401,25 @@ const HomePage = () => {
               placeholder="🌷🫧💭₊˚ෆ˚Write a quick note..."
               value={quickNote}
               onChange={(e) => setQuickNote(e.target.value)}
-              maxLength={100}
+              maxLength={500}
+              disabled={notes.length > 0 && !editingNoteId}
             />
-            <button onClick={handleSaveQuickNote}>Save Note</button>
-          </div>
+
+            {editingNoteId ? (
+              <button onClick={handleUpdateQuickNote} className="action-btn">Update Note</button>
+            ) : (
+              <button
+                onClick={handleSaveQuickNote}
+                className="action-btn"
+                disabled={notes.length > 0}
+              >
+                Save Note
+              </button>
+            )}
+            {notes.length > 0 && !editingNoteId && (
+              <p className="note-limit-msg">✅ You've already added today's note.</p>
+            )}
+          </div>      
         </div>
 
         <div className="bottom-section">
@@ -337,7 +476,7 @@ const HomePage = () => {
               </div>
 
               <div className="save-entry">
-                <button type="submit" className="save-btn">Submit Entry</button>
+                <button type="submit" className="action-btn">Submit Entry</button>
               </div>
             </form>
           </div>
@@ -350,3 +489,5 @@ const HomePage = () => {
 };
 
 export default HomePage;
+
+
