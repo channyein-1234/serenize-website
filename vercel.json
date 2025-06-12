@@ -1,0 +1,8 @@
+{
+    "functions": {
+      "api/scheduled/sentReminder.js": {
+        "schedule": "*/1 * * * *"
+      }
+    }
+  }
+  
