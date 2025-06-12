@@ -1,8 +1,6 @@
 
 import { createClient } from '@supabase/supabase-js';
 import webpush from 'web-push';
-import dotenv from 'dotenv';
-dotenv.config();
 
 
 const SUPABASE_URL = process.env.SUPABASE_URL;

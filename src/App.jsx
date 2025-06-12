@@ -11,7 +11,7 @@ import JournalEditor from './pages/journalingpg';
 import Wellness from './pages/wellnesspg';
 import Contact from './pages/contactpg';
 import Chatbot from './pages/chatbot';
-import AdminPage from './pages/adminpg'; // <-- Assuming you have this page
+import AdminPage from './pages/adminpg'; 
 import RouteRestriction from './pages/routeRestriction';
 import UserProfile from './pages/userProfile';
 
