@@ -79,7 +79,7 @@ async function subscribeUserToPush() {
     }
 
     // Send subscription to backend
-    await fetch('/api/sentReminder', {
+    await fetch('/api/scheduled/sentReminder', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ userId, subscription }),

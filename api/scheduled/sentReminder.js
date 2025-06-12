@@ -25,7 +25,7 @@ function getCurrentDateTime() {
   // Convert to ISO date YYYY-MM-DD
   const date = now.toISOString().split('T')[0];
   // Format time as HH:mm (24-hour)
-  const time = now.toTimeString().slice(0, 8);
+  const time = now.toTimeString().slice(0, 5);
   return { date, time };
 }
 
