@@ -7,8 +7,6 @@ const SUPABASE_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
 const PUBLIC_VAPID_KEY = process.env.PUBLIC_VAPID_KEY;
 const PRIVATE_VAPID_KEY = process.env.PRIVATE_VAPID_KEY;
 
-const CRON_SECRET = process.env.CRON_SECRET;
-
 // Setup web-push with VAPID keys
 webpush.setVapidDetails(
   'mailto:admin@email.com',
@@ -28,13 +26,7 @@ function getCurrentDateTime() {
 }
 
 export default async function handler(req, res) {
-  // Check for cron secret key to authorize
-  const secret = req.query.secret || req.headers['x-cron-secret'];
-  if (!secret || secret !== CRON_SECRET) {
-    return res.status(401).json({ error: 'Unauthorized: Invalid or missing secret' });
-  }
-
-  console.log('Authorized cron request - checking reminders to send...');
+  console.log('Received request to send reminders');
 
   const { date, time } = getCurrentDateTime();
 
