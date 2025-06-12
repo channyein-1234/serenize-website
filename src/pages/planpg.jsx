@@ -389,7 +389,9 @@ async function subscribeUserToPush() {
         </div>
 
         <div className="main-sections">
-         <button onClick={askNotificationPermission}>Enable Reminders</button>
+        <button onClick={askNotificationPermission} disabled={Notification.permission === 'granted'}>
+          {Notification.permission === 'granted' ? 'Reminders Enabled' : 'Enable Reminders'}
+        </button>
 
           <div className="task-container">
             <h2>Tasks for {selectedDate.toDateString()}</h2>

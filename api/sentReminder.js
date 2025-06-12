@@ -1,5 +1,3 @@
-// /api/sendReminders.js
-
 import { createClient } from '@supabase/supabase-js';
 import webpush from 'web-push';
 
@@ -19,28 +17,31 @@ webpush.setVapidDetails(
 // Initialize Supabase client with Service Role key (bypasses RLS)
 const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
 
-// Helper: get current date and time
-function getCurrentDateTime() {
+// Helper: get current date and time window for querying reminders
+function getCurrentDateTimeWindow() {
   const now = new Date();
-  // Convert to ISO date YYYY-MM-DD
-  const date = now.toISOString().split('T')[0];
-  // Format time as HH:mm (24-hour)
-  const time = now.toTimeString().slice(0, 5);
-  return { date, time };
+  const oneMinuteAgo = new Date(now.getTime() - 60 * 1000);
+
+  const date = now.toISOString().split('T')[0];             // YYYY-MM-DD
+  const startTime = oneMinuteAgo.toTimeString().slice(0, 8); // HH:mm:ss (1 minute ago)
+  const endTime = now.toTimeString().slice(0, 8);            // HH:mm:ss (now)
+
+  return { date, startTime, endTime };
 }
 
 export default async function handler(req, res) {
   console.log('Checking reminders to send...');
 
-  const { date, time } = getCurrentDateTime();
+  const { date, startTime, endTime } = getCurrentDateTimeWindow();
 
   try {
-    // Fetch reminders where date/time matches and not sent yet
+    // Fetch reminders where date matches and time is between (startTime and endTime), and not sent yet
     const { data: reminders, error: remindersError } = await supabase
       .from('reminders')
       .select('id, title, date, time, user_id')
       .eq('date', date)
-      .eq('time', time)
+      .gte('time', startTime)   // time >= startTime (1 minute ago)
+      .lte('time', endTime)     // time <= current time
       .eq('sent', false);
 
     if (remindersError) {
@@ -96,7 +97,7 @@ export default async function handler(req, res) {
 
           // Remove invalid subscription from DB
           await supabase
-            .from('push_subscriptions')  // fixed table name here
+            .from('push_subscriptions')
             .delete()
             .eq('id', sub.id);
 
