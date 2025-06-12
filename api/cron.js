@@ -1,11 +1,6 @@
 import sendReminder from './sentReminder.js';
 
 export default async function handler(req, res) {
-  // Check cron secret
-  if (req.headers.authorization !== `Bearer ${process.env.CRON_SECRET}`) {
-    return res.status(401).end('Unauthorized');
-  }
-
   try {
     await sendReminder();
     res.status(200).end('Reminders sent');
@@ -14,3 +9,5 @@ export default async function handler(req, res) {
     res.status(500).end('Failed to send reminders');
   }
 }
+
+
