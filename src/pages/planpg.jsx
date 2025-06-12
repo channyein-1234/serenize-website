@@ -52,6 +52,8 @@ useEffect(() => {
   getUser();
 }, []);
 
+
+
 function urlBase64ToUint8Array(base64String) {
   const padding = '='.repeat((4 - (base64String.length % 4)) % 4);
   const base64 = (base64String + padding).replace(/-/g, '+').replace(/_/g, '/');
@@ -65,33 +67,63 @@ function urlBase64ToUint8Array(base64String) {
 
 // Function to subscribe user to push notifications
 
-async function subscribeUserToPush() {
+async function subscribeUserToPush(userId) {
+  if (!userId) {
+    console.error('User ID is missing. Cannot subscribe.');
+    return;
+  }
+
   if ('serviceWorker' in navigator) {
-    const registration = await navigator.serviceWorker.register('/sw.js');
-    console.log('Service Worker registered:', registration);
-  
-    const subscription = await registration.pushManager.subscribe({
-      userVisibleOnly: true,
-      applicationServerKey: urlBase64ToUint8Array(publicVapidKey),
-    });
+    try {
+      const registration = await navigator.serviceWorker.register('/sw.js');
+      console.log('Service Worker registered:', registration);
 
-    console.log('Push subscription:', subscription);
-
-    if (Notification.permission === 'granted') {
-      new Notification('Subscribed to reminders!', {
-        body: 'You will now receive notifications.',
-        icon: '/serenize_logo.png',
+      const subscription = await registration.pushManager.subscribe({
+        userVisibleOnly: true,
+        applicationServerKey: urlBase64ToUint8Array(publicVapidKey),
       });
-    }
 
-    // Send subscription to backend API to save it
-    await fetch('/api/saveSubscription', {   // or '/api/sentReminder' if you prefer
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ userId, subscription }),
-    });
+      console.log('Push subscription:', subscription);
+
+      if (Notification.permission === 'granted') {
+        new Notification('Subscribed to reminders!', {
+          body: 'You will now receive notifications.',
+          icon: '/serenize_logo.png',
+        });
+      }
+
+      // Save directly to Supabase
+      const { data, error } = await supabase
+        .from('push_subscriptions')
+        .insert([
+          {
+            user_id: userId,
+            subscription: JSON.stringify(subscription),
+            created_at: new Date().toISOString(),
+          },
+        ]);
+
+      if (error) {
+        console.error('Failed to save subscription to Supabase:', error);
+      } else {
+        console.log('Subscription saved to Supabase:', data);
+      }
+
+    } catch (err) {
+      console.error('Subscription failed:', err);
+    }
+  } else {
+    console.warn('Service workers are not supported in this browser.');
   }
 }
+
+// useEffect(() => {
+//   if (userId) {
+//     subscribeUserToPush(userId); 
+//   }
+// });
+  
+
 
   //  Ask notification permission 
   async function askNotificationPermission() {
@@ -100,7 +132,7 @@ async function subscribeUserToPush() {
         const permission = await Notification.requestPermission();
         if (permission === 'granted') {
           console.log('Notification permission granted.');
-          subscribeUserToPush(); 
+          subscribeUserToPush(userId); 
         } else {
           console.log('Notification permission denied.');
         }
@@ -113,19 +145,7 @@ async function subscribeUserToPush() {
   }
 
 
-  //Asking reminder for reminder permission
 
-  // useEffect(() => {
-  //   if ('Notification' in window && 'serviceWorker' in navigator) {
-  //     Notification.requestPermission().then((permission) => {
-  //       if (permission === 'granted') {
-  //         console.log('Notification permission granted.');
-  //       }
-  //     });
-  //   }
-  // }, []);
-  
-  
 
   // Generate calendar dates for the strip
   const calendarDates = [];
