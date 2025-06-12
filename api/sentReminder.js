@@ -16,27 +16,23 @@ webpush.setVapidDetails(
 
 // Initialize Supabase client with Service Role key (bypasses RLS)
 const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
-
-// Helper: get current date and time formatted as YYYY-MM-DD and HH:mm
-function getCurrentDateTime() {
-  const now = new Date();
-  const date = now.toISOString().split('T')[0];
-  const time = now.toTimeString().slice(0, 5);
-  return { date, time };
-}
-
 export default async function sendReminder() {
   console.log('Starting to send reminders');
 
-  const { date, time } = getCurrentDateTime();
-
   try {
-    // Fetch reminders where date/time matches and not sent yet
+    const now = new Date();
+    const todayISO = now.toISOString().split('T')[0]; // YYYY-MM-DD
+
+    // Define start and end of today in UTC ISO strings
+    const dayStart = new Date(todayISO + 'T00:00:00.000Z').toISOString();
+    const dayEnd = new Date(todayISO + 'T23:59:59.999Z').toISOString();
+
+    // Fetch reminders where reminder_at is between dayStart and dayEnd and not sent yet
     const { data: reminders, error: remindersError } = await supabase
       .from('reminders')
-      .select('id, title, date, time, user_id')
-      .eq('date', date)
-      .eq('time', time)
+      .select('id, title, reminder_at, user_id')
+      .gte('reminder_at', dayStart)
+      .lte('reminder_at', dayEnd)
       .eq('sent', false);
 
     if (remindersError) {
@@ -45,7 +41,7 @@ export default async function sendReminder() {
     }
 
     if (!reminders || reminders.length === 0) {
-      console.log('No reminders due at this time.');
+      console.log('No reminders due today.');
       return;
     }
 
@@ -73,9 +69,8 @@ export default async function sendReminder() {
       });
 
       for (const sub of subscriptions) {
-        let pushSubscription;
         try {
-          pushSubscription =
+          const pushSubscription =
             typeof sub.subscription === 'string'
               ? JSON.parse(sub.subscription)
               : sub.subscription;
