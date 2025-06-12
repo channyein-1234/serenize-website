@@ -1,13 +1,13 @@
 /* eslint-disable no-restricted-globals */
-if ('serviceWorker' in navigator) {
-    window.addEventListener('load', () => {
-      navigator.serviceWorker.register('/sw.js')
-        .then(registration => {
-          console.log('Service Worker registered with scope:', registration.scope);
-        })
-        .catch(err => {
-          console.error('Service Worker registration failed:', err);
-        });
-    });
-  }
+/* eslint-disable no-restricted-globals */
+
+self.addEventListener('push', function (event) {
+    const data = event.data?.json() || {};
+    const title = data.title || 'Reminder';
+    const options = {
+      body: data.body || 'You have a new reminder!',
+      icon: '/serenize_logo.png', 
+    };
   
+    event.waitUntil(self.registration.showNotification(title, options));
+  });
