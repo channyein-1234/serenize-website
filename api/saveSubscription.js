@@ -20,7 +20,7 @@ export default async function handler(req, res) {
     // Save subscription as stringified JSON
     const { data, error } = await supabase
       .from('push_subscriptions')
-      .insert([
+      .upsert([
         {
           user_id: userId,
           subscription: JSON.stringify(subscription),
