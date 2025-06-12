@@ -70,37 +70,19 @@ async function subscribeUserToPush() {
 
     console.log('Push subscription:', subscription);
 
-    // Show confirmation notification using the Notification API
     if (Notification.permission === 'granted') {
       new Notification('Subscribed to reminders!', {
         body: 'You will now receive notifications.',
-        icon: '/serenize_logo.png'
+        icon: '/serenize_logo.png',
       });
     }
 
-    // Send subscription to backend
-    await fetch('/api/sentReminder', {
+    // Send subscription to backend API to save it
+    await fetch('/api/saveSubscription', {   // or '/api/sentReminder' if you prefer
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ userId, subscription }),
     });
-
-    // Save to Supabase
-    const { data, error } = await supabase
-      .from('push_subscriptions')
-      .insert([
-        {
-          user_id: userId, 
-          subscription: subscription,
-          created_at: new Date().toISOString(),
-        }
-      ], { onConflict: ['user_id'] });
-
-    if (error) {
-      console.error('Error saving subscription:', error);
-    } else {
-      console.log('Subscription saved:', data);
-    }
   }
 }
 
@@ -123,6 +105,20 @@ async function subscribeUserToPush() {
       console.warn('Notification API not supported in this environment.');
     }
   }
+
+
+  //Asking reminder for reminder permission
+
+  // useEffect(() => {
+  //   if ('Notification' in window && 'serviceWorker' in navigator) {
+  //     Notification.requestPermission().then((permission) => {
+  //       if (permission === 'granted') {
+  //         console.log('Notification permission granted.');
+  //       }
+  //     });
+  //   }
+  // }, []);
+  
   
 
   // Generate calendar dates for the strip
@@ -291,18 +287,6 @@ async function subscribeUserToPush() {
     setReminderInputs(updated);
   };
 
-  //Asking reminder for reminder permission
-
-  useEffect(() => {
-    if ('Notification' in window && 'serviceWorker' in navigator) {
-      Notification.requestPermission().then((permission) => {
-        if (permission === 'granted') {
-          console.log('Notification permission granted.');
-        }
-      });
-    }
-  }, []);
-  
 
   //Deleting reminder from supabase
 
@@ -389,9 +373,10 @@ async function subscribeUserToPush() {
         </div>
 
         <div className="main-sections">
-        <button onClick={askNotificationPermission} disabled={Notification.permission === 'granted'}>
-          {Notification.permission === 'granted' ? 'Reminders Enabled' : 'Enable Reminders'}
-        </button>
+          <button onClick={askNotificationPermission}>
+              Enable Reminders
+          </button>
+
 
           <div className="task-container">
             <h2>Tasks for {selectedDate.toDateString()}</h2>
