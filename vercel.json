@@ -1,7 +1,11 @@
 {
-    "crons": [{
-      "path": "/api/cron",
-      "schedule": "30 21 * * *"
-
-    }]
+    "crons": [
+      {
+        "path": "/api/cron",
+        "schedule": "0 23 * * *",
+        "headers": {
+          "Authorization": "Bearer serenize_cron_secret123@"
+        }
+      }
+    ]
   }
