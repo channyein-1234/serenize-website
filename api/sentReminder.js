@@ -25,8 +25,8 @@ function getCurrentDateTime() {
   return { date, time };
 }
 
-export default async function handler(req, res) {
-  console.log('Received request to send reminders');
+export default async function sendReminder() {
+  console.log('Starting to send reminders');
 
   const { date, time } = getCurrentDateTime();
 
@@ -41,12 +41,12 @@ export default async function handler(req, res) {
 
     if (remindersError) {
       console.error('Error fetching reminders:', remindersError);
-      return res.status(500).json({ error: 'Error fetching reminders' });
+      throw new Error('Error fetching reminders');
     }
 
     if (!reminders || reminders.length === 0) {
       console.log('No reminders due at this time.');
-      return res.status(200).json({ message: 'No reminders due' });
+      return;
     }
 
     for (const reminder of reminders) {
@@ -58,7 +58,7 @@ export default async function handler(req, res) {
 
       if (subsError) {
         console.error('Error fetching subscriptions:', subsError);
-        continue;
+        continue; // skip this reminder but continue others
       }
 
       if (!subscriptions || subscriptions.length === 0) {
@@ -101,9 +101,9 @@ export default async function handler(req, res) {
       }
     }
 
-    res.status(200).json({ message: 'Reminders processed' });
+    console.log('Finished sending reminders');
   } catch (err) {
-    console.error('Unexpected error in reminder handler:', err);
-    res.status(500).json({ error: 'Unexpected error' });
+    console.error('Unexpected error in sendReminder function:', err);
+    throw err;
   }
 }
