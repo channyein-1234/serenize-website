@@ -60,43 +60,49 @@ function urlBase64ToUint8Array(base64String) {
 
 async function subscribeUserToPush() {
   if ('serviceWorker' in navigator) {
-    try {
-      const registration = await navigator.serviceWorker.register('/sw.js');
-      console.log('Service Worker registered:', registration);
+    const registration = await navigator.serviceWorker.register('/sw.js');
+    console.log('Service Worker registered:', registration);
+  
+    const subscription = await registration.pushManager.subscribe({
+      userVisibleOnly: true,
+      applicationServerKey: urlBase64ToUint8Array(publicVapidKey),
+    });
 
-      const subscription = await registration.pushManager.subscribe({
-        userVisibleOnly: true,
-        applicationServerKey: urlBase64ToUint8Array(publicVapidKey),
+    console.log('Push subscription:', subscription);
+
+    // Show confirmation notification using the Notification API
+    if (Notification.permission === 'granted') {
+      new Notification('Subscribed to reminders!', {
+        body: 'You will now receive notifications.',
+        icon: '/serenize_logo.png'
       });
+    }
 
-      console.log('Push subscription:', subscription);
+    // Send subscription to backend
+    await fetch('/api/sentReminder', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ userId, subscription }),
+    });
 
-      if (Notification.permission === 'granted') {
-        new Notification('Subscribed to reminders!', {
-          body: 'You will now receive notifications.',
-          icon: '/serenize_logo.png',
-        });
-      }
+    // Save to Supabase
+    const { data, error } = await supabase
+      .from('push_subscriptions')
+      .insert([
+        {
+          user_id: userId, 
+          subscription: subscription,
+          created_at: new Date().toISOString(),
+        }
+      ], { onConflict: ['user_id'] });
 
-      // Send subscription to backend API
-      const response = await fetch('/api/saveSubscription', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ userId, subscription }),
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        console.error('Failed to save subscription:', errorData);
-      } else {
-        console.log('Subscription saved on server');
-      }
-    } catch (err) {
-      console.error('Error during subscription:', err);
+    if (error) {
+      console.error('Error saving subscription:', error);
+    } else {
+      console.log('Subscription saved:', data);
     }
   }
 }
-
 
 
   //  Ask notification permission 
