@@ -19,15 +19,14 @@ export default async function handler(req, res) {
   try {
     // Save subscription as stringified JSON
     const { data, error } = await supabase
-      .from('push_subscriptions')
-      .upsert([
-        {
-          user_id: userId,
-          subscription: JSON.stringify(subscription),
-          created_at: new Date().toISOString(),
-        }
-      ], { onConflict: ['user_id'] });  // Or change onConflict logic as discussed
-
+    .from('push_subscriptions')
+    .insert([
+      {
+        user_id: userId,
+        subscription: JSON.stringify(subscription),
+        created_at: new Date().toISOString(),
+      }
+    ]);
     if (error) {
       console.error('Error saving subscription:', error);
       return res.status(500).json({ error: 'Failed to save subscription' });
