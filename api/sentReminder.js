@@ -1,5 +1,3 @@
-// /api/sendeminders.js
-
 import { createClient } from '@supabase/supabase-js';
 import webpush from 'web-push';
 
@@ -8,6 +6,8 @@ const SUPABASE_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
 
 const PUBLIC_VAPID_KEY = process.env.PUBLIC_VAPID_KEY;
 const PRIVATE_VAPID_KEY = process.env.PRIVATE_VAPID_KEY;
+
+const CRON_SECRET = process.env.CRON_SECRET;
 
 // Setup web-push with VAPID keys
 webpush.setVapidDetails(
@@ -19,18 +19,22 @@ webpush.setVapidDetails(
 // Initialize Supabase client with Service Role key (bypasses RLS)
 const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
 
-// Helper: get current date and time
+// Helper: get current date and time formatted as YYYY-MM-DD and HH:mm
 function getCurrentDateTime() {
   const now = new Date();
-  // Convert to ISO date YYYY-MM-DD
   const date = now.toISOString().split('T')[0];
-  // Format time as HH:mm (24-hour)
   const time = now.toTimeString().slice(0, 5);
   return { date, time };
 }
 
 export default async function handler(req, res) {
-  console.log('Checking reminders to send...');
+  // Check for cron secret key to authorize
+  const secret = req.query.secret || req.headers['x-cron-secret'];
+  if (!secret || secret !== CRON_SECRET) {
+    return res.status(401).json({ error: 'Unauthorized: Invalid or missing secret' });
+  }
+
+  console.log('Authorized cron request - checking reminders to send...');
 
   const { date, time } = getCurrentDateTime();
 
@@ -53,7 +57,6 @@ export default async function handler(req, res) {
       return res.status(200).json({ message: 'No reminders due' });
     }
 
-    // Loop through all due reminders
     for (const reminder of reminders) {
       // Get push subscriptions for the reminder's user
       const { data: subscriptions, error: subsError } = await supabase
@@ -71,19 +74,15 @@ export default async function handler(req, res) {
         continue;
       }
 
-      // Prepare notification payload
       const payload = JSON.stringify({
         title: 'Reminder',
         body: reminder.title,
         data: { reminderId: reminder.id },
       });
 
-      // Send notification to each subscription
       for (const sub of subscriptions) {
         let pushSubscription;
-
         try {
-          // Parse subscription JSON if stored as string
           pushSubscription =
             typeof sub.subscription === 'string'
               ? JSON.parse(sub.subscription)
@@ -93,18 +92,13 @@ export default async function handler(req, res) {
           console.log(`Notification sent for reminder ${reminder.id} to user ${reminder.user_id}`);
         } catch (err) {
           console.error('Failed to send notification, removing subscription:', err);
-
           // Remove invalid subscription from DB
-          await supabase
-            .from('push_subscriptions')  // fixed table name here
-            .delete()
-            .eq('id', sub.id);
-
+          await supabase.from('push_subscriptions').delete().eq('id', sub.id);
           console.log(`Deleted invalid subscription with id ${sub.id}`);
         }
       }
 
-      // Mark reminder as sent to avoid duplicates
+      // Mark reminder as sent
       const { error: updateError } = await supabase
         .from('reminders')
         .update({ sent: true })
