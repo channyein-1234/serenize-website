@@ -31,7 +31,7 @@ const Planning = () => {
   const today = new Date();
   const todayISO = today.toISOString().split('T')[0];
   const selectedISO = selectedDate.toISOString().split('T')[0];
-  const publicVapidKey = 'BO4D32FzaA1l70RXJVotNlRBrytEPObPzDhBlHMKsime4hYYvNaj9qUjt_YTc2q5lmQhcLfLgNmpzRyN4B99oQU';
+  const publicVapidKey = 'BNATpZBdUEvf7Ywzv4SAtDaGCY_7dZh8U2gNIk0bWAM_8G7LG2xAJUtj2B0PtQuSkNMqF8gR8C7dZyymN-mIfKU';
 //Retrieving user from supabase
 useEffect(() => {
   const getUser = async () => {
