@@ -22,7 +22,7 @@ const Planning = () => {
   const [taskEditTime, setTaskEditTime] = useState('');
   const [editingReminderId, setEditingReminderId] = useState(null);
   const [reminderEditText, setReminderEditText] = useState('');
-  const [reminderEditTime, setReminderEditTime] = useState('');
+  const [reminderEditTime, setReminderEditTime] = useState([{ text: '', time: '12:00' }]);
   const [userId, setUserId] = useState(null);
   const calendarStripRef = useRef(null);
   const [notes, setNotes] = useState([]);
@@ -30,9 +30,16 @@ const Planning = () => {
   const [noteEditText, setNoteEditText] = useState('');
   const today = new Date();
   const todayISO = today.toISOString().split('T')[0];
-  const selectedISO = selectedDate.toISOString().split('T')[0];
+
+
+  const formatDate = (date) => {
+    return date.toISOString().split('T')[0];
+  };
+  const selectedISO = formatDate(selectedDate);
+
   const publicVapidKey = 'BNATpZBdUEvf7Ywzv4SAtDaGCY_7dZh8U2gNIk0bWAM_8G7LG2xAJUtj2B0PtQuSkNMqF8gR8C7dZyymN-mIfKU';
-//Retrieving user from supabase
+
+  //Retrieving user from supabase
 useEffect(() => {
   const getUser = async () => {
     const { data, error } = await supabase.auth.getUser();
@@ -85,7 +92,6 @@ async function subscribeUserToPush() {
     });
   }
 }
-
 
   //  Ask notification permission 
   async function askNotificationPermission() {
@@ -260,62 +266,108 @@ async function subscribeUserToPush() {
     }
   };
 
+  //////////////////////////////////////////////////////reminders//////
+   // Convert local date + time to UTC ISO
+   const localDateTimeToUTCISO = (dateStr, timeStr) => {
+    const [year, month, day] = dateStr.split('-').map(Number);
+    const [hours, minutes] = timeStr.split(':').map(Number);
+    const localDate = new Date(year, month - 1, day, hours, minutes);
+    return localDate.toISOString();
+  };
 
-  //Setting a reminder in supabase
+  // Convert UTC ISO to local display info
+  const utcISOToLocalDateTime = (isoString) => {
+    const dt = new Date(isoString);
+    const year = dt.getFullYear();
+    const month = String(dt.getMonth() + 1).padStart(2, '0');
+    const day = String(dt.getDate()).padStart(2, '0');
+    const hours = String(dt.getHours()).padStart(2, '0');
+    const minutes = String(dt.getMinutes()).padStart(2, '0');
+    return {
+      date: `${year}-${month}-${day}`,
+      time: `${hours}:${minutes}`,
+      display: dt.toLocaleString(),
+    };
+  };
+
+  // Fetch reminders
+  const fetchReminders = async () => {
+    if (!userId) return;
+    const { data, error } = await supabase
+      .from('reminders')
+      .select('*')
+      .eq('user_id', userId)
+      .order('reminder_at', { ascending: true });
+
+    if (error) console.error('Error fetching reminders:', error);
+    else setReminders(data);
+  };
+
+  /// Set a new reminder
   const handleSetReminder = async (index) => {
     if (!userId) return;
     const { text, time } = reminderInputs[index];
     if (!text.trim()) return;
 
+    const selectedISO = formatDate(selectedDate);
+    const reminderAtUTC = localDateTimeToUTCISO(selectedISO, time);
+
     const { error } = await supabase.from('reminders').insert([
-      { user_id: userId, title: text, date: selectedISO, time },
+      { user_id: userId, title: text, reminder_at: reminderAtUTC },
     ]);
 
-    if (error) console.error('Error saving reminder:', error);
-    else {
+    if (error) {
+      console.error('Error saving reminder:', error);
+    } else {
       const updatedInputs = [...reminderInputs];
       updatedInputs[index] = { text: '', time: '12:00' };
       setReminderInputs(updatedInputs);
-      setSelectedDate(new Date(selectedDate));
+      fetchReminders(); // refresh list
     }
   };
 
-  //Updating reminder in supabase
-  const updateReminderInput = (index, key, value) => {
-    const updated = [...reminderInputs];
-    updated[index][key] = value;
-    setReminderInputs(updated);
-  };
-
-
-  //Deleting reminder from supabase
-
+  /// Delete reminder
   const handleDeleteReminder = async (id) => {
     const { error } = await supabase.from('reminders').delete().eq('id', id);
     if (error) console.error('Error deleting reminder:', error);
-    else setSelectedDate(new Date(selectedDate));
+    else fetchReminders();
   };
 
-  //Updaing edited reminder in supabase
+  useEffect(() => {
+    fetchReminders();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [userId]);
 
-  const handleEditReminder = (reminder) => {
-    setEditingReminderId(reminder.id);
-    setReminderEditText(reminder.title);
-    setReminderEditTime(reminder.time);
-  };
+const updateReminderInput = (index, field, value) => {
+  const updatedInputs = [...reminderInputs];
+  updatedInputs[index][field] = value;
+  setReminderInputs(updatedInputs);
+};
 
-  const saveReminderEdit = async () => {
-    const { error } = await supabase
-      .from('reminders')
-      .update({ title: reminderEditText, time: reminderEditTime })
-      .eq('id', editingReminderId);
+const saveReminderEdit = async () => {
+  if (!editingReminderId) return;
 
-    if (error) console.error('Error updating reminder:', error);
-    else {
-      setEditingReminderId(null);
-      setSelectedDate(new Date(selectedDate));
-    }
-  };
+  const { error } = await supabase
+    .from('reminders')
+    .update({ title: reminderEditText, time: reminderEditTime })
+    .eq('id', editingReminderId);
+
+  if (!error) {
+    fetchReminders(); // Make sure this is defined
+    setEditingReminderId(null);
+    setReminderEditText('');
+    setReminderEditTime('');
+  }
+};
+
+const handleEditReminder = (reminder) => {
+  setEditingReminderId(reminder.id);
+  setReminderEditText(reminder.title);
+  setReminderEditTime(reminder.time || '');
+};
+
+
+  
 
   //Editing notes and Updating in supabase
   const handleEditNote = (note) => {
@@ -472,71 +524,80 @@ async function subscribeUserToPush() {
           </div>
 
           <div className="reminder-container">
-            <h2><i className="fa-solid fa-bell"></i> Reminders</h2>
-            {reminderInputs.map((input, index) => (
-              <div key={index} className="reminder-inputs">
-                <input
-                  type="text"
-                  placeholder="🍓 Add reminder"
-                  value={input.text}
-                  onChange={(e) => updateReminderInput(index, 'text', e.target.value)}
-                  disabled={!editingEnabled}
-                />
-                <input
-                  type="time"
-                  value={input.time}
-                  onChange={(e) => updateReminderInput(index, 'time', e.target.value)}
-                  disabled={!editingEnabled}
-                />
-                <button
-                  className="reminder-set-btn"
-                  onClick={() => handleSetReminder(index)}
-                  disabled={!editingEnabled}
-                >
-                  Set Reminder
-                </button>
-              </div>
-            ))}
-            <ul className="reminder-list">
-              {reminders.length === 0 ? (
-                <li className="no-reminders">No reminders for this day.</li>
-              ) : (
-                reminders.map(reminder => (
-                  <li key={reminder.id} className="reminder-item">
-                    <div className='tasks'>
-                    {editingReminderId === reminder.id ? (
-                      <>
-                        <input
-                          type="text"
-                          value={reminderEditText}
-                          onChange={(e) => setReminderEditText(e.target.value)}
-                        />
-                        <input
-                          type="time"
-                          value={reminderEditTime}
-                          onChange={(e) => setReminderEditTime(e.target.value)}
-                        />
-                        <button onClick={saveReminderEdit}>Save</button>
-                      </>
-                    ) : (
-                      <>
-                        {reminder.title} {reminder.time && `(${reminder.time})`}
-                        {editingEnabled && (
-                          <>
-                            <div className='task-actions'>
-                              <button className='action-btn' onClick={() => handleEditReminder(reminder)}>Edit</button>
-                            <button className='action-btn' onClick={() => handleDeleteReminder(reminder.id)}>Delete</button>
-                            </div>
-                          </>
-                        )}
-                      </>
+  <h2><i className="fa-solid fa-bell"></i> Reminders</h2>
+
+  {reminderInputs.map((input, index) => (
+    <div key={index} className="reminder-inputs">
+      <input
+        type="text"
+        placeholder="🍓 Add reminder"
+        value={input.text}
+        onChange={(e) => updateReminderInput(index, 'text', e.target.value)}
+        disabled={!editingEnabled}
+      />
+      <input
+        type="time"
+        value={input.time}
+        onChange={(e) => updateReminderInput(index, 'time', e.target.value)}
+        disabled={!editingEnabled}
+      />
+      <button
+        className="reminder-set-btn"
+        onClick={() => handleSetReminder(index)}
+        disabled={!editingEnabled}
+      >
+        Set Reminder
+      </button>
+    </div>
+  ))}
+
+  <ul className="reminder-list">
+    {reminders.length === 0 ? (
+      <li className="no-reminders">No reminders for this day.</li>
+    ) : (
+      reminders.map((reminder) => {
+        const { date, time } = utcISOToLocalDateTime(reminder.reminder_at);
+        const isEditing = editingReminderId === reminder.id;
+        const isToday = date === formatDate(selectedDate);
+
+        return (
+          isToday && (
+            <li key={reminder.id} className="reminder-item">
+              <div className="tasks">
+                {isEditing ? (
+                  <>
+                    <input
+                      type="text"
+                      value={reminderEditText}
+                      onChange={(e) => setReminderEditText(e.target.value)}
+                    />
+                    <input
+                      type="time"
+                      value={reminderEditTime}
+                      onChange={(e) => setReminderEditTime(e.target.value)}
+                    />
+                    <button className="action-btn" onClick={saveReminderEdit}>Save</button>
+                  </>
+                ) : (
+                  <>
+                    {reminder.title} ({time})
+                    {editingEnabled && (
+                      <div className="task-actions">
+                        <button className="action-btn" onClick={() => handleEditReminder(reminder)}>Edit</button>
+                        <button className="action-btn" onClick={() => handleDeleteReminder(reminder.id)}>Delete</button>
+                      </div>
                     )}
-                    </div>
-                  </li>
-                ))
-              )}
-            </ul>
-          </div>
+                  </>
+                )}
+              </div>
+            </li>
+          )
+        );
+      })
+    )}
+  </ul>
+</div>
+
         </div>
         <div className="note-carousel-section">
           <h2><i className="fa-solid fa-note-sticky"></i> Your Notes</h2>
