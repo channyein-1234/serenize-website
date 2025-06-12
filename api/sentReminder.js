@@ -1,5 +1,12 @@
+
+import { createClient } from '@supabase/supabase-js';
 import webpush from 'web-push';
-import supabaseAdmin from './supabaseServer';
+import dotenv from 'dotenv';
+dotenv.config();
+
+
+const SUPABASE_URL = process.env.SUPABASE_URL;
+const SUPABASE_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
 
 const PUBLIC_VAPID_KEY = process.env.PUBLIC_VAPID_KEY;
 const PRIVATE_VAPID_KEY = process.env.PRIVATE_VAPID_KEY;
@@ -12,6 +19,7 @@ webpush.setVapidDetails(
 );
 
 // Initialize Supabase client with Service Role key (bypasses RLS)
+const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
 export default async function sendReminder() {
   console.log('Starting to send reminders');
 
@@ -24,7 +32,7 @@ export default async function sendReminder() {
     const dayEnd = new Date(todayISO + 'T23:59:59.999Z').toISOString();
 
     // Fetch reminders where reminder_at is between dayStart and dayEnd and not sent yet
-    const { data: reminders, error: remindersError } = await supabaseAdmin
+    const { data: reminders, error: remindersError } = await supabase
       .from('reminders')
       .select('id, title, reminder_at, user_id')
       .gte('reminder_at', dayStart)
@@ -43,7 +51,7 @@ export default async function sendReminder() {
 
     for (const reminder of reminders) {
       // Get push subscriptions for the reminder's user
-      const { data: subscriptions, error: subsError } = await supabaseAdmin
+      const { data: subscriptions, error: subsError } = await supabase
         .from('push_subscriptions')
         .select('id, subscription')
         .eq('user_id', reminder.user_id);
@@ -76,13 +84,13 @@ export default async function sendReminder() {
         } catch (err) {
           console.error('Failed to send notification, removing subscription:', err);
           // Remove invalid subscription from DB
-          await supabaseAdmin.from('push_subscriptions').delete().eq('id', sub.id);
+          await supabase.from('push_subscriptions').delete().eq('id', sub.id);
           console.log(`Deleted invalid subscription with id ${sub.id}`);
         }
       }
 
       // Mark reminder as sent
-      const { error: updateError } = await supabaseAdmin
+      const { error: updateError } = await supabase
         .from('reminders')
         .update({ sent: true })
         .eq('id', reminder.id);
