@@ -61,45 +61,48 @@ function urlBase64ToUint8Array(base64String) {
 async function subscribeUserToPush() {
   if ('serviceWorker' in navigator) {
     const registration = await navigator.serviceWorker.register('/sw.js');
-  console.log('Service Worker registered:', registration);
+    console.log('Service Worker registered:', registration);
   
-  const subscription = await registration.pushManager.subscribe({
-    userVisibleOnly: true,
-    applicationServerKey: urlBase64ToUint8Array(publicVapidKey),
-  });
+    const subscription = await registration.pushManager.subscribe({
+      userVisibleOnly: true,
+      applicationServerKey: urlBase64ToUint8Array(publicVapidKey),
+    });
 
-  console.log('Push subscription:', subscription);
+    console.log('Push subscription:', subscription);
 
+    // Show confirmation notification using the Notification API
+    if (Notification.permission === 'granted') {
+      new Notification('Subscribed to reminders!', {
+        body: 'You will now receive notifications.',
+        icon: '/serenize_logo.png'
+      });
+    }
 
-    // Send subscription to your backend server
+    // Send subscription to backend
     await fetch('/api/sentReminder', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ userId, subscription }),
     });
-    
+
     // Save to Supabase
-      const { data, error } = await supabase
-        .from('push_subscriptions')
-        .insert([
-          {
-            user_id: userId, 
-            subscription: subscription,
-            created_at: new Date().toISOString(),
-          }
-        ], { onConflict: ['user_id'] }); // To update existing subscription if user already exists
-    
-      if (error) {
-        console.error('Error saving subscription:', error);
-      } else {
-        console.log('Subscription saved:', data);
-        
+    const { data, error } = await supabase
+      .from('push_subscriptions')
+      .insert([
+        {
+          user_id: userId, 
+          subscription: subscription,
+          created_at: new Date().toISOString(),
+        }
+      ], { onConflict: ['user_id'] });
+
+    if (error) {
+      console.error('Error saving subscription:', error);
+    } else {
+      console.log('Subscription saved:', data);
     }
   }
 }
-
-
-
 
 
   //  Ask notification permission 
