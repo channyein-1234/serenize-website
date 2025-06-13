@@ -318,22 +318,21 @@ useEffect(() => {
 
       <div className='home-container'>
         <div className="top-section">
-        <div className="reminder-box">
+          <div className="reminder-box">
             <h3>Today's Reminders</h3>
-            <div className='reminder-container'>
-              {reminders.length === 0 ? (
-                <p>No reminders today.</p>
-              ) : (
-                <ul>
-                  {reminders.map((rem) => (
-                    <li key={rem.id}>
-                      <input className='check-box' type="checkbox" checked={rem.done} readOnly />
-                      {rem.time} - {rem.title}
-                    </li>
-                  ))}
-                </ul>
-              )}
-            </div>
+                <div className='reminder-container'>
+                  {reminders.length === 0 ? (
+                    <p>No reminders today.</p>
+                  ) : (
+                    <ul>
+                      {reminders.map((rem) => (
+                        <li key={rem.id}>
+                          {rem.title}
+                        </li>
+                        ))}
+                    </ul>
+                  )}
+                </div>
           </div>
 
           <div className="calendar-container">
