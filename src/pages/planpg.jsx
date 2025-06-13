@@ -188,22 +188,12 @@ async function subscribeUserToPush(userId) {
       else setTasks(data);
     };
 
-    const fetchReminders = async () => {
-      const { data, error } = await supabase
-        .from('reminders')
-        .select('*')
-        .eq('user_id', userId)
-        .eq('date', selectedISO)
-        .order('time');
-      if (error) console.error('Error fetching reminders:', error);
-      else setReminders(data);
-    };
+    
 
     const sel = new Date(selectedDate).setHours(0, 0, 0, 0);
     setEditingEnabled(sel >= new Date().setHours(0, 0, 0, 0));
 
     fetchTasks();
-    fetchReminders();
   }, [selectedDate, selectedISO, userId]);
 
   

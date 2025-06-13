@@ -147,14 +147,13 @@ useEffect(() => {
   
   useEffect(() => {
     const fetchReminders = async () => {
-      const today = new Date().toISOString().split('T')[0];
   
       const { data, error } = await supabase
-        .from('reminders')
-        .select('id, title, date, time, sent')
-        .eq('user_id', user.id)
-        .eq('date', today)
-        .order('time', { ascending: true });
+      .from('reminders')
+      .select('*')
+      .eq('user_id', user.id)
+      .eq('sent', false) // Only fetch unsent reminders
+      .order('reminder_at', { ascending: true });
   
       if (error) {
         console.error('Error fetching reminders:', error);
