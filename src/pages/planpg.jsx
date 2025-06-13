@@ -66,83 +66,66 @@ function urlBase64ToUint8Array(base64String) {
 }
 
 // Function to subscribe user to push notifications
+useEffect(() => {
+  async function askNotificationAndSubscribe() {
+    if (!userId) return;
 
-async function subscribeUserToPush(userId) {
-  if (!userId) {
-    console.error('User ID is missing. Cannot subscribe.');
-    return;
-  }
-
-  if ('serviceWorker' in navigator) {
-    try {
-      const registration = await navigator.serviceWorker.register('/sw.js');
-      console.log('Service Worker registered:', registration);
-
-      const subscription = await registration.pushManager.subscribe({
-        userVisibleOnly: true,
-        applicationServerKey: urlBase64ToUint8Array(publicVapidKey),
-      });
-
-      console.log('Push subscription:', subscription);
-
-      if (Notification.permission === 'granted') {
-        new Notification('Subscribed to reminders!', {
-          body: 'You will now receive notifications.',
-          icon: '/serenize_logo.png',
-        });
-      }
-
-      // Save directly to Supabase
-      const { data, error } = await supabase
-        .from('push_subscriptions')
-        .insert([
-          {
-            user_id: userId,
-            subscription: JSON.stringify(subscription),
-            created_at: new Date().toISOString(),
-          },
-        ]);
-
-      if (error) {
-        console.error('Failed to save subscription to Supabase:', error);
-      } else {
-        console.log('Subscription saved to Supabase:', data);
-      }
-
-    } catch (err) {
-      console.error('Subscription failed:', err);
-    }
-  } else {
-    console.warn('Service workers are not supported in this browser.');
-  }
-}
-
-// useEffect(() => {
-//   if (userId) {
-//     subscribeUserToPush(userId); 
-//   }
-// });
-  
-
-
-  //  Ask notification permission 
-  async function askNotificationPermission() {
-    if (typeof window !== 'undefined' && 'Notification' in window) {
-      try {
-        const permission = await Notification.requestPermission();
-        if (permission === 'granted') {
-          console.log('Notification permission granted.');
-          subscribeUserToPush(userId); 
-        } else {
-          console.log('Notification permission denied.');
-        }
-      } catch (error) {
-        console.error('Notification permission error:', error);
-      }
-    } else {
+    if (!('Notification' in window)) {
       console.warn('Notification API not supported in this environment.');
+      return;
+    }
+
+    try {
+      const permission = await Notification.requestPermission();
+      if (permission === 'granted') {
+        if ('serviceWorker' in navigator) {
+          const registration = await navigator.serviceWorker.register('/sw.js');
+          console.log('Service Worker registered:', registration);
+
+          const subscription = await registration.pushManager.subscribe({
+            userVisibleOnly: true,
+            applicationServerKey: urlBase64ToUint8Array(publicVapidKey),
+          });
+
+          console.log('Push subscription:', subscription);
+
+          new Notification('Subscribed to reminders!', {
+            body: 'You will now receive notifications.',
+            icon: '/serenize_logo.png',
+          });
+
+          // Save subscription to Supabase
+          const { data, error } = await supabase
+            .from('push_subscriptions')
+            .insert([
+              {
+                user_id: userId,
+                subscription: JSON.stringify(subscription),
+                created_at: new Date().toISOString(),
+              },
+            ]);
+
+          if (error) {
+            console.error('Failed to save subscription to Supabase:', error);
+          } else {
+            console.log('Subscription saved to Supabase:', data);
+          }
+        } else {
+          console.warn('Service workers are not supported in this browser.');
+        }
+      } else {
+        console.log('Notification permission denied.');
+      }
+    } catch (error) {
+      console.error('Error during notification permission or subscription:', error);
     }
   }
+
+  askNotificationAndSubscribe();
+
+  // We only want to run this when userId changes
+}, [userId]);
+
 
 
 
@@ -372,11 +355,6 @@ const saveReminderEdit = async () => {
   }
 };
 
-const handleEditReminder = (reminder) => {
-  setEditingReminderId(reminder.id);
-  setReminderEditText(reminder.title);
-  setReminderEditTime(reminder.time || '');
-};
 
 
   
@@ -437,11 +415,6 @@ const handleEditReminder = (reminder) => {
         </div>
 
         <div className="main-sections">
-          <button onClick={askNotificationPermission}>
-              Enable Reminders
-          </button>
-
-
           <div className="task-container">
             <h2>Tasks for {selectedDate.toDateString()}</h2>
             {editingEnabled ? (
@@ -595,7 +568,6 @@ const handleEditReminder = (reminder) => {
                     {reminder.title} ({time})
                     {editingEnabled && (
                       <div className="task-actions">
-                        <button className="action-btn" onClick={() => handleEditReminder(reminder)}>Edit</button>
                         <button className="action-btn" onClick={() => handleDeleteReminder(reminder.id)}>Delete</button>
                       </div>
                     )}

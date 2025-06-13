@@ -85,24 +85,30 @@ const JournalEditor = () => {
   const handleSaveCanvas = async () => {
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) return alert("Please login to save your journal");
-
-    const drawing = await canvasRef.current.exportPaths();
-    const payload = {
-      user_id: user.id,
-      drawing,
-      bg_image: bgImage,
-      stickers: placedStickers,
-    };
-
-    if (editingId) {
-      await supabase.from("journaling").update(payload).eq("id", editingId);
-      setEditingId(null);
-    } else {
-      await supabase.from("journaling").insert(payload);
+  
+    try {
+      const drawing = await canvasRef.current.exportPaths();
+      const payload = {
+        user_id: user.id,
+        drawing,
+        bg_image: bgImage,
+        stickers: placedStickers,
+      };
+  
+      if (editingId) {
+        await supabase.from("journaling").update(payload).eq("id", editingId);
+        setEditingId(null);
+      } else {
+        await supabase.from("journaling").insert(payload);
+      }
+  
+      fetchJournals();
+    } catch (error) {
+      console.error("Failed to export canvas paths:", error);
+      alert("Draw something on the canvas before saving.");
     }
-
-    fetchJournals();
   };
+  
 
   const deleteJournal = async (id) => {
     await supabase.from("journaling").delete().eq("id", id);
