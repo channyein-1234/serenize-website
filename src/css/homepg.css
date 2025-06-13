@@ -57,6 +57,12 @@
   border-radius: 10px;
   height: auto;
 }
+
+.reminder-container ul {
+  list-style:circle;
+  padding: 10px;
+  margin: 0 10px;
+}
 .reminder-done {
   text-decoration: line-through;
   color: gray;
