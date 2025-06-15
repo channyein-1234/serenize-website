@@ -9,18 +9,14 @@ export default async function handler(req, res) {
 
   // Only allow POST requests
   
-  if (req.method === 'GET') {
-    return res.status(200).json({ message: 'This endpoint only supports POST for AI suggestions.' });
+ 
+
+  if (req.method !== 'GET') {
+    return res.status(405).json({ error: 'Method not allowed, please use GET' });
   }
-
-  if (req.method !== 'POST') {
-    return res.status(405).json({ error: 'Method not allowed, please use POST' });
-  }
-
-
-  const { user_id } = req.body;
+  const { user_id } = req.query;
   if (!user_id) {
-    return res.status(400).json({ error: 'Missing user_id in request body' });
+    return res.status(400).json({ error: 'Missing user_id in query' });
   }
 
   try {
