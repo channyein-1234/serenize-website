@@ -45,7 +45,7 @@ export default async function handler(req, res) {
     const prompt = `Based on the following recent moods: ${JSON.stringify(moodData)}, suggest activities or videos to improve user's mental wellbeing.`;
 
     const response = await openai.chat.completions.create({
-      model: 'gpt-4',
+      model: 'gpt-4o',
       messages: [
         {
           role: 'system',
