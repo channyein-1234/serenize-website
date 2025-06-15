@@ -65,7 +65,7 @@ const Chatbot = () => {
     setTyping(true);
 
     try {
-      const res = await fetch("http://localhost:3000/api/openAI", {
+      const res = await fetch("api/openAI", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ user_id: userId }),
