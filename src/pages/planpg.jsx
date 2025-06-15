@@ -40,17 +40,17 @@ const Planning = () => {
   const publicVapidKey = 'BNATpZBdUEvf7Ywzv4SAtDaGCY_7dZh8U2gNIk0bWAM_8G7LG2xAJUtj2B0PtQuSkNMqF8gR8C7dZyymN-mIfKU';
 
   //Retrieving user from supabase
-useEffect(() => {
-  const getUser = async () => {
-    const { data, error } = await supabase.auth.getUser();
-    if (error) {
-      console.error('Error fetching user:', error);
-      return;
-    }
-    setUserId(data.user?.id || null);
-  };
-  getUser();
-}, []);
+  useEffect(() => {
+    const getUser = async () => {
+      const { data, error } = await supabase.auth.getUser();
+      if (error) {
+        console.error('Error fetching user:', error);
+        return;
+      }
+      setUserId(data.user?.id || null);
+    };
+    getUser();
+  }, []);
 
 
 

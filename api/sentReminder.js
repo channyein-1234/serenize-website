@@ -23,14 +23,7 @@ export default async function sendReminder() {
 
   try {
     const now = new Date();
-    // const todayISO = now.toISOString().split('T')[0]; // YYYY-MM-DD
-
-    // Define start and end of today in UTC ISO strings
-
-    // const dayStart = new Date(todayISO + 'T00:00:00.000Z').toISOString();
-    // const dayEnd = new Date(todayISO + 'T23:59:59.999Z').toISOString();
-
-    // Fetch reminders where reminder_at is between dayStart and dayEnd and not sent yet
+    
     const { data: reminders, error: remindersError } = await supabase
     .from('reminders')
     .select('id, title, reminder_at, user_id')
