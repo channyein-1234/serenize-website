@@ -5,9 +5,18 @@ const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_SER
 const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 
 export default async function handler(req, res) {
+  // Set CORS headers for all requests
+  res.setHeader('Access-Control-Allow-Origin', 'https://serenize-website.vercel.app/chatbot'); 
+  res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+
+  // Handle preflight OPTIONS request
+  if (req.method === 'OPTIONS') {
+    return res.status(204).end(); // No content
+  }
+
   console.log('Incoming method:', req.method);
 
-  // Only allow POST requests
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed, please use POST' });
   }
@@ -18,18 +27,16 @@ export default async function handler(req, res) {
   }
 
   try {
-    // Fetch latest 5 moods for the user
     console.log('Starting handler, user_id:', user_id);
 
-const { data: moodData, error } = await supabase
-  .from('moods')
-  .select('*')
-  .eq('user_id', user_id)
-  .order('created_at', { ascending: false })
-  .limit(5);
+    const { data: moodData, error } = await supabase
+      .from('moods')
+      .select('*')
+      .eq('user_id', user_id)
+      .order('created_at', { ascending: false })
+      .limit(5);
 
-console.log('Mood data:', moodData, 'Error:', error);
-
+    console.log('Mood data:', moodData, 'Error:', error);
 
     if (error) {
       return res.status(500).json({ error: error.message || 'Error fetching moods' });
@@ -37,7 +44,6 @@ console.log('Mood data:', moodData, 'Error:', error);
 
     const prompt = `Based on the following recent moods: ${JSON.stringify(moodData)}, suggest activities or videos to improve user's mental wellbeing.`;
 
-    // Call OpenAI chat completion
     const response = await openai.chat.completions.create({
       model: 'gpt-4',
       messages: [
