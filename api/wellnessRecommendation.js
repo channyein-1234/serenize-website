@@ -19,23 +19,25 @@ export default async function handler(req, res) {
     const userPrompt = `
       You are a helpful wellness assistant.
 
-      A user is experiencing stress, anxiety, or low mood based on their recent mood logs:
-      {moods}
+Use the following recent mood logs to guide your suggestions:
+{moods}
 
-      Suggest:
-      - 2 YouTube videos with helpful titles and full links (must be wellness-related),
-      - 1 activity idea (just one clear sentence),
+Your task:
+- Suggest 2 wellness-related YouTube videos with clear titles and full links.
+- Suggest 1 wellness activity in a single sentence, directly related to the user's moods.
 
-      Do NOT include greetings or intros.
+Important rules:
+- Do NOT include any greetings, intros, or conclusions.
+- Do NOT assume anything not in the mood data.
+- Follow this exact format:
 
-      Format the response EXACTLY like this:
+Videos:
+1. Title - https://www.youtube.com/watch?v=abc123
+2. Title - https://www.youtube.com/watch?v=xyz456
+Activity:
+1.Your activity suggestion here.
 
-      Videos:
-      1. Title - https://www.youtube.com/watch?v=abc123
-      2. Title - https://www.youtube.com/watch?v=xyz456
-
-      Activity:
-      Your activity suggestion sentence here.(must include an activity suggestion)
+      
     `;
 
     const suggestions = await getAIAssistantResponse(user_id, systemContent, userPrompt);
