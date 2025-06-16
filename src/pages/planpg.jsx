@@ -67,63 +67,95 @@ function urlBase64ToUint8Array(base64String) {
 
 // Function to subscribe user to push notifications
 useEffect(() => {
-  async function askNotificationAndSubscribe() {
+  async function checkAndSubscribe() {
     if (!userId) return;
 
-    if (!('Notification' in window)) {
-      console.warn('Notification API not supported in this environment.');
+    if (!('Notification' in window) || !('serviceWorker' in navigator)) {
+      console.warn('Notifications or Service Workers not supported.');
       return;
     }
 
     try {
-      const permission = await Notification.requestPermission();
-      if (permission === 'granted') {
-        if ('serviceWorker' in navigator) {
-          const registration = await navigator.serviceWorker.register('/sw.js');
-          console.log('Service Worker registered:', registration);
+      // 1. Register service worker early to get pushManager
+      const registration = await navigator.serviceWorker.register('/sw.js');
+      console.log('Service Worker registered.');
 
-          const subscription = await registration.pushManager.subscribe({
-            userVisibleOnly: true,
-            applicationServerKey: urlBase64ToUint8Array(publicVapidKey),
-          });
+      // 2. Get current browser subscription (if any)
+      const currentSubscription = await registration.pushManager.getSubscription();
 
-          console.log('Push subscription:', subscription);
+      // 3. Fetch saved subscriptions from DB
+      const { data: savedSubs, error: fetchError } = await supabase
+        .from('push_subscriptions')
+        .select('subscription')
+        .eq('user_id', userId);
 
-          new Notification('Subscribed to reminders!', {
-            body: 'You will now receive notifications.',
-            icon: '/serenize_logo.png',
-          });
-
-          // Save subscription to Supabase
-          const { data, error } = await supabase
-            .from('push_subscriptions')
-            .insert([
-              {
-                user_id: userId,
-                subscription: JSON.stringify(subscription),
-                created_at: new Date().toISOString(),
-              },
-            ]);
-
-          if (error) {
-            console.error('Failed to save subscription to Supabase:', error);
-          } else {
-            console.log('Subscription saved to Supabase:', data);
-          }
-        } else {
-          console.warn('Service workers are not supported in this browser.');
-        }
-      } else {
-        console.log('Notification permission denied.');
+      if (fetchError) {
+        console.error('Error fetching subscriptions from Supabase:', fetchError);
+        return;
       }
-    } catch (error) {
-      console.error('Error during notification permission or subscription:', error);
+
+      // 4. Helper to check if currentSubscription endpoint exists in DB
+      const isSubscribedInDB = currentSubscription && savedSubs.some(sub => {
+        try {
+          const savedSub = JSON.parse(sub.subscription);
+          return savedSub.endpoint === currentSubscription.endpoint;
+        } catch {
+          return false;
+        }
+      });
+
+      if (isSubscribedInDB) {
+        console.log('Current subscription already exists in DB, no action needed.');
+        return; // Already subscribed & saved, no need to proceed
+      }
+
+      // 5. If no current subscription OR not saved in DB, ask permission if needed
+      if (Notification.permission === 'default') {
+        const permission = await Notification.requestPermission();
+        if (permission !== 'granted') {
+          console.log('User denied or dismissed notification permission.');
+          return;
+        }
+      } else if (Notification.permission === 'denied') {
+        console.log('Notification permission denied previously.');
+        return;
+      }
+      // else permission is granted
+
+      // 6. Subscribe if not already subscribed in browser
+      const newSubscription = currentSubscription || await registration.pushManager.subscribe({
+        userVisibleOnly: true,
+        applicationServerKey: urlBase64ToUint8Array(publicVapidKey),
+      });
+
+      console.log('Push subscription:', newSubscription);
+
+      // 7. Save new subscription to DB (if it was just created, or not found in DB)
+      const { data, error } = await supabase
+        .from('push_subscriptions')
+        .insert([
+          {
+            user_id: userId,
+            subscription: JSON.stringify(newSubscription),
+            created_at: new Date().toISOString(),
+          },
+        ]);
+
+      if (error) {
+        console.error('Failed to save subscription:', error);
+      } else {
+        console.log('Subscription saved to Supabase:', data);
+        new Notification('Subscribed!', {
+          body: 'You will receive reminders.',
+          icon: '/serenize_logo.png',
+        });
+      }
+    } catch (err) {
+      console.error('Error in subscription process:', err);
     }
   }
 
-  askNotificationAndSubscribe();
-
-  // We only want to run this when userId changes
+  checkAndSubscribe();
 }, [userId]);
 
 

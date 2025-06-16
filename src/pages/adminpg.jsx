@@ -13,7 +13,7 @@ const Admin = () => {
   const [user, setUser] = useState(null);
 
   const handleProfileClick = () => {
-    navigate('/admin/profile');
+    navigate('/adminProfile');
   };
 
   useEffect(() => {
