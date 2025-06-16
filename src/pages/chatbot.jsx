@@ -54,37 +54,49 @@ const Chatbot = () => {
       ]);
       return;
     }
-
+  
     const newMessage = {
       message,
       sender: "user",
       direction: "outgoing",
     };
-
-    setMessages((prev) => [...prev, newMessage]);
+  
+    const updatedMessages = [...messages, newMessage];
+    setMessages(updatedMessages);
     setTyping(true);
-
+  
+    // Build chat history for OpenAI
+    const chatHistory = updatedMessages
+      .filter((m) => m.sender !== "system") // skip system messages
+      .map((m) => ({
+        role: m.sender === "user" ? "user" : "assistant",
+        content: m.message,
+      }));
+  
     try {
       const res = await fetch("/api/chatReply", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ user_id: userId }),
+        body: JSON.stringify({
+          user_id: userId,
+          message, // user's latest message
+          history: chatHistory.slice(0, -1), // exclude latest message from history (it's in `message`)
+        }),
       });
-
-      if (!res.ok) {
-        throw new Error("Failed to fetch AI response");
-      }
-
+  
+      if (!res.ok) throw new Error("Failed to fetch AI response");
+  
       const data = await res.json();
-
+  
       const botReply = {
         message: data?.suggestions || "Sorry, I couldn't think of a response!",
         sender: "ChatBot",
         direction: "incoming",
       };
-
+  
       setMessages((prev) => [...prev, botReply]);
     } catch (error) {
+      console.error("Error fetching AI suggestions:", error);
       setMessages((prev) => [
         ...prev,
         {
@@ -93,11 +105,11 @@ const Chatbot = () => {
           direction: "incoming",
         },
       ]);
-      console.error("Error fetching AI suggestions:", error);
     } finally {
       setTyping(false);
     }
   };
+  
 
   return (
     <div className="page-container">
