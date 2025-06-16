@@ -13,7 +13,7 @@ export async function getAIAssistantResponse(user_id, systemContent, userMessage
   // Get today's moods
   const { data: moods, error } = await supabase
     .from('moods')
-    .select('mood, created_at')
+    .select('mood, difficulty, created_at')
     .eq('user_id', user_id)
     .gte('created_at', `${todayDate}T00:00:00Z`)
     .lt('created_at', `${todayDate}T23:59:59Z`)
@@ -22,8 +22,8 @@ export async function getAIAssistantResponse(user_id, systemContent, userMessage
   if (error) throw new Error(`Supabase error: ${error.message}`);
 
   const moodSummary = moods?.length
-    ? `User's mood today includes: ${moods.map(m => m.mood).join(', ')}.`
-    : `No mood logs found for today.`;
+  ? `Today's mood logs: ${moods.map(m => `${m.mood} (difficulty: ${m.difficulty})`).join(', ')}.`
+  : `No mood logs found for today.`;
 
   // Build the messages array for chat completion
   const messages = [
