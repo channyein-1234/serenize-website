@@ -35,8 +35,7 @@ Videos:
 1. Title - https://www.youtube.com/watch?v=abc123
 2. Title - https://www.youtube.com/watch?v=xyz456
 Activity:
-1.Your activity suggestion here.
-
+1.Activity Title - your activity description here.
       
     `;
 
