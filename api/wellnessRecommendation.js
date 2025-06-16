@@ -17,14 +17,26 @@ export default async function handler(req, res) {
 
     const systemContent = 'You are a wellness video and activity suggestion assistant.';
     const userPrompt = `
-      You are a wellness assistant. 
-      Based on the following recent moods from a user: {moods}, suggest 2-3 specific YouTube videos or activity ideas that can help improve their mental well-being. 
-      Be concise and return direct suggestions or YouTube links. Do not include conversation or greeting.
-      If possible, format suggestions as:
-      1. Title - YouTube Link
-      2. Title - YouTube Link
-      Or short activity descriptions.
-    `;
+                        You are a helpful wellness assistant.
+
+                        A user is experiencing stress, anxiety, or low mood based on their recent mood logs.
+
+                        Suggest:
+                        - 2 YouTube videos with helpful titles and full links (must be wellness-related),
+                        - 1 activity idea (just one clear sentence),
+
+                        Do NOT include greetings or intros.
+
+                        Format the response EXACTLY like this:
+
+                        Videos:
+                        1. Title - https://www.youtube.com/watch?v=abc123
+                        2. Title - https://www.youtube.com/watch?v=xyz456
+
+                        Activity:
+                        Your activity suggestion sentence here.
+                        `;
+
 
     const suggestions = await getAIAssistantResponse(user_id, systemContent, userPrompt);
 
