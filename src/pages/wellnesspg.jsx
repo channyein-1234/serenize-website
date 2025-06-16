@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import "../css/wellnesspg.css";
 import Navbar from "./navbar";
 import Footer from "./footerpg";
-
+import supabase from "./supabaseClient";
 const wellnessVideos = [
   { id: 1, title: "6 Habits to improve mental wellness", src: "/wellnessVds/6 Small Habits To Improve Mental Wellness(720P_HD).mp4",  poster:"/vdPosters/vd1.png"},
   { id: 2, title: "Meditation for anxiety relief", src: "/wellnessVds/7 Minute Anxiety Relief Meditation _ Stop Overthinking Fast(720P_HD).mp4" , poster:"/vdPosters/vd2.png"},
@@ -17,9 +17,24 @@ const Wellness = () => {
   const [aiRecommendations, setAiRecommendations] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [userId, setUserId] = useState(null);
 
-  // Replace with actual user_id as needed
-  const userId = "your-user-id-here"; 
+
+  // Retrieve current user ID from Supabase auth session
+  useEffect(() => {
+    const getUser = async () => {
+      const {
+        data: { user },
+        error,
+      } = await supabase.auth.getUser();
+      if (error) {
+        console.error("Error fetching user:", error);
+        return;
+      }
+      setUserId(user?.id || null);
+    };
+    getUser();
+  }, []);
 
   useEffect(() => {
     async function fetchAIRecommendations() {
