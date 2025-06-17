@@ -230,13 +230,6 @@ nav, footer {
   background-color: #ff85c1;
 }
 
-/* AI Routine Section */
-.ai-routine-section {
-  margin-top: 30px;
-  padding: 15px;
-  background-color: white;
-  border-radius: 10px;
-}
 
 /* Readonly Message */
 .readonly-msg {
@@ -251,26 +244,125 @@ nav, footer {
   color: #555;
 }
 
-/* Notes Carousel */
-.note-carousel-section {
+/* Routine Suggestions  */
+.routine-suggestion-container {
+  background-color: #fef9f9;
+  border-radius: 16px;
+  padding: 24px;
+  max-width: 1000px;
   margin: 30px auto;
-  max-width: 600px;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.08);
+  font-family: 'Segoe UI', sans-serif;
+}
+
+.routine-suggestion-container .title h4 {
+  text-align: center;
+  font-size: 1.8rem;
+  color: #8b2c58;
+  margin-bottom: 30px;
+}
+
+.routine_container {
+  display: flex;
+  gap: 24px;
+  justify-content: space-between;
+  flex-wrap: wrap;
+}
+
+.routine-section {
+  flex: 1;
+  min-width: 250px;
+  background-color: #fff6f9;
+  padding: 20px;
+  border-radius: 12px;
+  box-shadow: 0 3px 10px rgba(0,0,0,0.05);
+}
+
+.routine-section h5 {
+  font-size: 1.2rem;
+  color: #8b2c58;
+  margin-bottom: 16px;
   text-align: center;
 }
 
-.note-carousel-item {
-  background: #fff8f0;
-  padding: 20px;
-  border-radius: 8px;
-  min-height: 150px;
-  position: relative;
+.routine-section ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
 }
 
-.note-actions {
-  margin-top: 10px;
+.routine-section li {
+  width: 100%;
+}
+
+.routine-section li button {
+  width: 100%;
+  background-color: #fde3ec;
+  color: #6a1b3d;
+  border: none;
+  padding: 10px 14px;
+  border-radius: 10px;
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition: background-color 0.3s ease, transform 0.2s ease;
+  text-align: left;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+}
+
+.routine-section li button:hover {
+  background-color: #f8c8dd;
+  transform: translateY(-2px);
+}
+
+ /* note section  */
+ .note-scroll-container {
+  display: flex;
+  overflow-x: auto;
+  gap: 16px;
+  padding: 10px 0;
+  scroll-snap-type: x mandatory;
+  scroll-behavior: smooth;
+  background-color: #f1bdeb;
+  /* Optional: hide vertical scrollbar */
+  scrollbar-width: thin;
+  scrollbar-color: #888 transparent;
+}
+
+.note-scroll-container::-webkit-scrollbar {
+  height: 8px;
+}
+
+.note-scroll-container::-webkit-scrollbar-thumb {
+  background-color: #888;
+  border-radius: 4px;
+}
+
+.note-scroll-item {
+  flex: 0 0 300px; /* fixed width, no shrinking */
+  background: #f7d3ea;
+  padding: 16px;
+  border-radius: 8px;
+  scroll-snap-align: start;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.note-date {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #555;
+  margin-bottom: 8px;
 }
 
 .note-actions button {
-  margin: 0 5px;
-  padding: 5px 10px;
+  width: 100px;
+  margin-top: 10px;
 }
+
+
+

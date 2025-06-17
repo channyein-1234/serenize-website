@@ -3,7 +3,6 @@ import '../css/planning.css';
 import supabase from './supabaseClient';
 import Navbar from './navbar';
 import Footer from './footerpg';
-import { Carousel } from 'react-responsive-carousel';
 import { DragDropContext, Droppable, Draggable } from '@hello-pangea/dnd';
 import 'react-responsive-carousel/lib/styles/carousel.min.css';
 
@@ -158,10 +157,6 @@ useEffect(() => {
   checkAndSubscribe();
 }, [userId]);
 
-
-
-
-
   // Generate calendar dates for the strip
   const calendarDates = [];
   for (let i = -15; i <= 15; i++) {
@@ -202,25 +197,46 @@ useEffect(() => {
       if (error) console.error('Error fetching tasks:', error);
       else setTasks(data);
     };
-
-    
-
     const sel = new Date(selectedDate).setHours(0, 0, 0, 0);
     setEditingEnabled(sel >= new Date().setHours(0, 0, 0, 0));
-
     fetchTasks();
   }, [selectedDate, selectedISO, userId]);
+
+    //adding new task to supabase
+    const handleAddTask = async (taskText = newTask) => {
+      if (!taskText.trim() || !userId) return;
+    
+      const { error } = await supabase.from('tasks').insert([
+        {
+          user_id: userId,
+          task: taskText,
+          date: selectedISO,
+          time: newTaskTime || '12:00',
+          done: false,
+        },
+      ]);
+    
+      if (error) console.error('Error adding task:', error);
+      else {
+        setNewTask('');
+        setNewTaskTime('12:00');
+        setSelectedDate(new Date(selectedDate));
+      }
+    };
+    
 
   
   //Fetching notes from the supabase
   useEffect(() => {
+    console.log('React userId:', userId);
+
     const fetchNotes = async () => {
       if (!userId) return;
       const { data, error } = await supabase
         .from('notes')
         .select('*')
         .eq('user_id', userId)
-        .order('created_at', { ascending: false });
+        .order('created_at', { ascending: true });
   
       if (error) console.error('Error fetching notes:', error);
       else setNotes(data);
@@ -229,27 +245,7 @@ useEffect(() => {
     fetchNotes();
   }, [userId]);
   
-  //adding new task to supabase
-  const handleAddTask = async () => {
-    if (!newTask.trim() || !userId) return;
-
-    const { error } = await supabase.from('tasks').insert([
-      {
-        user_id: userId,
-        task: newTask,
-        date: selectedISO,
-        time: newTaskTime,
-        done: false,
-      },
-    ]);
-
-    if (error) console.error('Error adding task:', error);
-    else {
-      setNewTask('');
-      setNewTaskTime('12:00');
-      setSelectedDate(new Date(selectedDate));
-    }
-  };
+  
 
   // Function to toggle task done status
   const toggleDone = async (id, current) => {
@@ -387,30 +383,34 @@ const saveReminderEdit = async () => {
   }
 };
 
-
-
-  
-
   //Editing notes and Updating in supabase
   const handleEditNote = (note) => {
     setEditingNoteId(note.id);
-    setNoteEditText(note.note);
+    setNoteEditText(note.text);
   };
   
   const saveNoteEdit = async () => {
     if (!noteEditText.trim()) return;
+  
     const { error } = await supabase
       .from('notes')
-      .update({ note: noteEditText })
+      .update({ text: noteEditText })  // <-- use 'text' here
       .eq('id', editingNoteId);
   
-    if (error) console.error('Error updating note:', error);
-    else {
+    if (error) {
+      console.error('Error updating note:', error);
+    } else {
+      setNotes((prevNotes) =>
+        prevNotes.map((note) =>
+          note.id === editingNoteId ? { ...note, text: noteEditText } : note
+        )
+      );
+  
       setEditingNoteId(null);
       setNoteEditText('');
-      setSelectedDate(new Date(selectedDate));
     }
   };
+  
   
   //Deleting notes from supabase
   const handleDeleteNote = async (id) => {
@@ -419,7 +419,6 @@ const saveReminderEdit = async () => {
     else setSelectedDate(new Date(selectedDate));
   };
   
-
   return (
     <div className="page-container">
       <Navbar />
@@ -541,131 +540,171 @@ const saveReminderEdit = async () => {
           </div>
 
           <div className="reminder-container">
-  <h2><i className="fa-solid fa-bell"></i> Reminders</h2>
+            <h2><i className="fa-solid fa-bell"></i> Reminders</h2>
 
-  {reminderInputs.map((input, index) => (
-    <div key={index} className="reminder-inputs">
-      <input
-        type="text"
-        placeholder="🍓 Add reminder"
-        value={input.text}
-        onChange={(e) => updateReminderInput(index, 'text', e.target.value)}
-        disabled={!editingEnabled}
-      />
-      <input
-        type="time"
-        value={input.time}
-        onChange={(e) => updateReminderInput(index, 'time', e.target.value)}
-        disabled={!editingEnabled}
-      />
-      <button
-        className="reminder-set-btn"
-        onClick={() => handleSetReminder(index)}
-        disabled={!editingEnabled}
-      >
-        Set Reminder
-      </button>
-    </div>
-  ))}
-
-  <ul className="reminder-list">
-    {reminders.length === 0 ? (
-      <li className="no-reminders">No reminders for this day.</li>
-    ) : (
-      reminders.map((reminder) => {
-        const { date, time } = utcISOToLocalDateTime(reminder.reminder_at);
-        const isEditing = editingReminderId === reminder.id;
-        const isToday = date === formatDate(selectedDate);
-
-        return (
-          isToday && (
-            <li key={reminder.id} className="reminder-item">
-              <div className="tasks">
-                {isEditing ? (
-                  <>
-                    <input
-                      type="text"
-                      value={reminderEditText}
-                      onChange={(e) => setReminderEditText(e.target.value)}
-                    />
-                    <input
-                      type="time"
-                      value={reminderEditTime}
-                      onChange={(e) => setReminderEditTime(e.target.value)}
-                    />
-                    <button className="action-btn" onClick={saveReminderEdit}>Save</button>
-                  </>
-                ) : (
-                  <>
-                    {reminder.title} ({time})
-                    {editingEnabled && (
-                      <div className="task-actions">
-                        <button className="action-btn" onClick={() => handleDeleteReminder(reminder.id)}>Delete</button>
-                      </div>
-                    )}
-                  </>
-                )}
-              </div>
-            </li>
-          )
-        );
-      })
-    )}
-  </ul>
-</div>
-
-        </div>
-        <div className="note-carousel-section">
-          <h2><i className="fa-solid fa-note-sticky"></i> Your Notes</h2>
-          <Carousel
-            showThumbs={false}
-            showStatus={false}
-            infiniteLoop
-            useKeyboardArrows
-            autoPlay
-            interval={5000}
-          >
-            {notes.map((note) => (
-              <div key={note.id} className="note-carousel-item">
-                {editingNoteId === note.id ? (
-                  <textarea
-                    value={noteEditText}
-                    onChange={(e) => setNoteEditText(e.target.value)}
-                  />
-                ) : (
-                  <p>{note.note}</p>
-                )}
-
-                <div className="note-actions">
-                  {editingNoteId === note.id ? (
-                    <button onClick={saveNoteEdit}>Save Note</button>
-                  ) : (
-                    <>
-                      <button onClick={() => handleEditNote(note)}>Edit</button>
-                      <button onClick={() => handleDeleteNote(note.id)}>Delete</button>
-                    </>
-                  )}
-                </div>
+            {reminderInputs.map((input, index) => (
+              <div key={index} className="reminder-inputs">
+                <input
+                  type="text"
+                  placeholder="🍓 Add reminder"
+                  value={input.text}
+                  onChange={(e) => updateReminderInput(index, 'text', e.target.value)}
+                  disabled={!editingEnabled}
+                />
+                <input
+                  type="time"
+                  value={input.time}
+                  onChange={(e) => updateReminderInput(index, 'time', e.target.value)}
+                  disabled={!editingEnabled}
+                />
+                <button
+                  className="reminder-set-btn"
+                  onClick={() => handleSetReminder(index)}
+                  disabled={!editingEnabled}
+                >
+                  Set Reminder
+                </button>
               </div>
             ))}
-          </Carousel>
+
+            <ul className="reminder-list">
+              {reminders.length === 0 ? (
+                <li className="no-reminders">No reminders for this day.</li>
+              ) : (
+                reminders.map((reminder) => {
+                  const { date, time } = utcISOToLocalDateTime(reminder.reminder_at);
+                  const isEditing = editingReminderId === reminder.id;
+                  const isToday = date === formatDate(selectedDate);
+
+                  return (
+                    isToday && (
+                      <li key={reminder.id} className="reminder-item">
+                        <div className="tasks">
+                          {isEditing ? (
+                            <>
+                              <input
+                                type="text"
+                                value={reminderEditText}
+                                onChange={(e) => setReminderEditText(e.target.value)}
+                              />
+                              <input
+                                type="time"
+                                value={reminderEditTime}
+                                onChange={(e) => setReminderEditTime(e.target.value)}
+                              />
+                              <button className="action-btn" onClick={saveReminderEdit}>Save</button>
+                            </>
+                          ) : (
+                            <>
+                              {reminder.title} ({time})
+                              {editingEnabled && (
+                                <div className="task-actions">
+                                  <button className="action-btn" onClick={() => handleDeleteReminder(reminder.id)}>Delete</button>
+                                </div>
+                              )}
+                            </>
+                          )}
+                        </div>
+                      </li>
+                    )
+                  );
+                })
+              )}
+            </ul>
+          </div>
+
+        </div>
+        <div className="routine-suggestion-container">
+          <div className="title">
+            <h4>Routine Suggestions</h4>
+          </div>
+
+          <div className="routine_container">
+            <div className="routine-section">
+              <h5>🌅 Morning</h5>
+              <ul>
+                <li><button onClick={() => handleAddTask('☀️ Meditation')}>☀️ Meditation</button></li>
+                <li><button onClick={() => handleAddTask('🚿 Cold Shower')}>🚿 Cold Shower</button></li>
+                <li><button onClick={() => handleAddTask('🍳 Healthy Breakfast')}>🍳 Healthy Breakfast</button></li>
+                <li><button onClick={() => handleAddTask('📖 Read 10 Pages')}>📖 Read 10 Pages</button></li>
+                <li><button onClick={() => handleAddTask('📝 Plan the Day')}>📝 Plan the Day</button></li>
+              </ul>
+            </div>
+
+            <div className="routine-section">
+              <h5>🌞 Afternoon</h5>
+              <ul>
+                <li><button onClick={() => handleAddTask('💻 Focused Work')}>💻 Focused Work</button></li>
+                <li><button onClick={() => handleAddTask('🥗 Light Lunch')}>🥗 Light Lunch</button></li>
+                <li><button onClick={() => handleAddTask('👣 Short Walk')}>👣 Short Walk</button></li>
+                <li><button onClick={() => handleAddTask('🧘 5-min Breathing')}>🧘 5-min Breathing</button></li>
+                <li><button onClick={() => handleAddTask('📅 Review Calendar')}>📅 Review Calendar</button></li>
+              </ul>
+            </div>
+
+            <div className="routine-section">
+              <h5>🌙 Night</h5>
+              <ul>
+                <li><button onClick={() => handleAddTask('📵 Digital Detox')}>📵 Digital Detox</button></li>
+                <li><button onClick={() => handleAddTask('🛏️ Sleep Early')}>🛏️ Sleep Early</button></li>
+                <li><button onClick={() => handleAddTask('🧼 Night Skincare')}>🧼 Night Skincare</button></li>
+                <li><button onClick={() => handleAddTask('📓 Gratitude Journal')}>📓 Gratitude Journal</button></li>
+                <li><button onClick={() => handleAddTask('📚 Light Reading')}>📚 Light Reading</button></li>
+              </ul>
+            </div>
+          </div>
         </div>
 
+        <div className="note-scroll-container">
+        {notes.map((note) => {
+          // Format the date nicely, fallback if no date
+            const formattedDate = note.date
+              ? new Date(note.date).toLocaleDateString(undefined, {
+                  year: 'numeric',
+                  month: 'short',
+                  day: 'numeric',
+                })
+              : 'No Date';
 
-         
+              return (
+                <div key={note.id} className="note-scroll-item">
+                  {editingNoteId === note.id ? (
+                    <>
+                      <div className="note-date">{formattedDate}</div>  {/* Date at top */}
+                      <textarea
+                        value={noteEditText}
+                        onChange={(e) => setNoteEditText(e.target.value)}
+                      />
+                    </>
+                  ) : (
+                    <>
+                      <div className="note-date">{formattedDate}</div>  {/* Date at top */}
+                      <p>{note.text}</p>
+                    </>
+                  )}
+              
+                  <div className="note-actions">
+                    {editingNoteId === note.id ? (
+                      <button onClick={saveNoteEdit}>Save Note</button>
+                    ) : (
+                      <>
+                        <button onClick={() => handleEditNote(note)}>Edit</button>
+                        <button onClick={() => handleDeleteNote(note.id)}>Delete</button>
+                      </>
+                    )}
+                  </div>
+                </div>
+              );
+              
+})}
+
+        </div>
+
         
 
-        <div className="ai-routine-section">
-        <h2><i className="fa-solid fa-robot"></i> AI Routine Recommendations</h2>
-        <p>Here are some personalized routines to enhance your productivity and well-being:</p>
-        <ul className="routine-list">
-          <li>🧘 Morning meditation at 7:00 AM</li>
-          <li>🥗 Healthy breakfast at 8:00 AM</li>
-          <li>📖 Focused work session from 9:00 AM - 11:00 AM</li>
-          <li>🚶 Walk or light exercise at 4:00 PM</li>
-          <li>🌙 Digital detox starting at 9:00 PM</li>
-        </ul>
-      </div>
+
+
+        
 
       </div>
       <Footer />

@@ -62,7 +62,6 @@ const HomePage = () => {
     fetchUser();
   }, []);
   
-
 useEffect(() => {
   const fetchGoals = async () => {
     const today = format(new Date(), 'yyyy-MM-dd'); // format to 'YYYY-MM-DD'
@@ -259,13 +258,7 @@ useEffect(() => {
       setEditingNoteId(null); // Exit edit mode if needed
       setTimeout(() => setUpdateMessage(''), 3000); // Hide after 3s
     }
-  };
-  
-  
-
-
-  
-  
+  }; 
   
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -404,18 +397,18 @@ useEffect(() => {
             />
 
             {editingNoteId ? (
-              <button onClick={handleUpdateQuickNote} className="action-btn">Update Note</button>
+              <div className='button-container'>
+                <button onClick={handleUpdateQuickNote} className="action-btn">Update Note</button>
+              </div>
             ) : (
-              <button
-                onClick={handleSaveQuickNote}
-                className="action-btn"
-                disabled={notes.length > 0}
-              >
+              <div>
+                <button onClick={handleSaveQuickNote} className="action-btn" disabled={notes.length > 0}>
                 Save Note
               </button>
+              </div>
             )}
             {notes.length > 0 && !editingNoteId && (
-              <p className="note-limit-msg">✅ You've already added today's note.</p>
+              <p className="note-limit-msg">You've already added today's note.</p>
             )}
           </div>      
         </div>
