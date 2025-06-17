@@ -19,25 +19,23 @@ export default async function handler(req, res) {
     const userPrompt = `
       You are a helpful wellness assistant.
 
-Use the following recent mood logs to guide your suggestions:
-{moods}
+      Use the following recent mood logs to guide your suggestions:
+      {moods}
 
-Your task:
-- Suggest 2 wellness-related YouTube videos with clear titles and full links.
-- Suggest 1 wellness activity in a single sentence, directly related to the user's moods.
+      Your task:
+      - Suggest 2 wellness-related YouTube videos with clear titles and full links.
 
-Important rules:
-- Do NOT include any greetings, intros, or conclusions.
-- Do NOT assume anything not in the mood data.
-- Follow this exact format:
+      Important rules:
+      - Do NOT include any greetings, intros, or conclusions.
+      - Do NOT assume anything not in the mood data.
+      - Follow this exact format:
+      - Do Not suggest videos that are not available.
 
-Videos:
-1. Title - https://www.youtube.com/watch?v=abc123
-2. Title - https://www.youtube.com/watch?v=xyz456
-Activity:
-1.Activity Title - your activity description here.
-      
-    `;
+      Videos:
+      1. Title - https://www.youtube.com/watch?v=abc123
+      2. Title - https://www.youtube.com/watch?v=xyz456
+            
+          `;
 
     const suggestions = await getAIAssistantResponse(user_id, systemContent, userPrompt);
 

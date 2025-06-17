@@ -128,12 +128,7 @@ const Wellness = () => {
                   </div>
                 );
               })}
-              {aiRecommendations.activity && (
-                <div className="activity-card">
-                  <h4>Activity Suggestion</h4>
-                  <p>{aiRecommendations.activity}</p>
-                </div>
-              )}
+
             </div>
           )}
         </section>
