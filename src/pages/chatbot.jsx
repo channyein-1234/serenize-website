@@ -114,24 +114,26 @@ const Chatbot = () => {
   return (
     <div className="page-container">
       <Navbar />
-      <div className="chat-container">
-        <MainContainer>
-          <ChatContainer>
-            <MessageList
-              typingIndicator={
-                typing ? <TypingIndicator content="AI is typing..." /> : null
-              }
-            >
-              {messages.map((msg, i) => (
-                <Message key={i} model={msg} />
-              ))}
-            </MessageList>
-            <MessageInput
-              placeholder="Type message here"
-              onSend={handleSendMessage}
-            />
-          </ChatContainer>
-        </MainContainer>
+      <div className="whole-chat-container">
+        <div className="chat-container">
+          <MainContainer>
+            <ChatContainer>
+              <MessageList
+                typingIndicator={
+                  typing ? <TypingIndicator content="AI is typing..." /> : null
+                }
+              >
+                {messages.map((msg, i) => (
+                  <Message key={i} model={msg} />
+                ))}
+              </MessageList>
+              <MessageInput
+                placeholder="Type message here"
+                onSend={handleSendMessage}
+              />
+            </ChatContainer>
+          </MainContainer>
+        </div>
       </div>
       <Footer />
     </div>

@@ -75,14 +75,14 @@ useEffect(() => {
     }
 
     try {
-      // 1. Register service worker early to get pushManager
+      // 1. Register service worker
       const registration = await navigator.serviceWorker.register('/sw.js');
       console.log('Service Worker registered.');
 
       // 2. Get current browser subscription (if any)
       const currentSubscription = await registration.pushManager.getSubscription();
 
-      // 3. Fetch saved subscriptions from DB
+      // 3. Fetch existing subscriptions from Supabase
       const { data: savedSubs, error: fetchError } = await supabase
         .from('push_subscriptions')
         .select('subscription')
@@ -93,22 +93,25 @@ useEffect(() => {
         return;
       }
 
-      // 4. Helper to check if currentSubscription endpoint exists in DB
-      const isSubscribedInDB = currentSubscription && savedSubs.some(sub => {
-        try {
-          const savedSub = JSON.parse(sub.subscription);
-          return savedSub.endpoint === currentSubscription.endpoint;
-        } catch {
-          return false;
-        }
-      });
+      // 4. Check if current subscription is already in DB
+      const isSubscribedInDB =
+        currentSubscription &&
+        savedSubs.some(sub => {
+          try {
+            const savedSub = JSON.parse(sub.subscription);
+            return savedSub.endpoint === currentSubscription.endpoint;
+          } catch {
+            return false;
+          }
+        });
 
+      // ✅ Exit early if already subscribed
       if (isSubscribedInDB) {
-        console.log('Current subscription already exists in DB, no action needed.');
-        return; // Already subscribed & saved, no need to proceed
+        console.log('Current subscription already exists in Supabase.');
+        return;
       }
 
-      // 5. If no current subscription OR not saved in DB, ask permission if needed
+      // 5. Ask notification permission if not already granted
       if (Notification.permission === 'default') {
         const permission = await Notification.requestPermission();
         if (permission !== 'granted') {
@@ -116,29 +119,28 @@ useEffect(() => {
           return;
         }
       } else if (Notification.permission === 'denied') {
-        console.log('Notification permission denied previously.');
+        console.log('Notification permission previously denied.');
         return;
       }
-      // else permission is granted
 
-      // 6. Subscribe if not already subscribed in browser
-      const newSubscription = currentSubscription || await registration.pushManager.subscribe({
-        userVisibleOnly: true,
-        applicationServerKey: urlBase64ToUint8Array(publicVapidKey),
-      });
+      // 6. Subscribe if needed
+      const newSubscription =
+        currentSubscription ||
+        (await registration.pushManager.subscribe({
+          userVisibleOnly: true,
+          applicationServerKey: urlBase64ToUint8Array(publicVapidKey),
+        }));
 
       console.log('Push subscription:', newSubscription);
 
-      // 7. Save new subscription to DB (if it was just created, or not found in DB)
-      const { data, error } = await supabase
-        .from('push_subscriptions')
-        .insert([
-          {
-            user_id: userId,
-            subscription: JSON.stringify(newSubscription),
-            created_at: new Date().toISOString(),
-          },
-        ]);
+      // 7. Save to Supabase
+      const { data, error } = await supabase.from('push_subscriptions').insert([
+        {
+          user_id: userId,
+          subscription: JSON.stringify(newSubscription),
+          created_at: new Date().toISOString(),
+        },
+      ]);
 
       if (error) {
         console.error('Failed to save subscription:', error);
@@ -156,6 +158,7 @@ useEffect(() => {
 
   checkAndSubscribe();
 }, [userId]);
+
 
   // Generate calendar dates for the strip
   const calendarDates = [];
@@ -334,17 +337,29 @@ useEffect(() => {
   // Fetch reminders
   const fetchReminders = async () => {
     if (!userId) return;
+  
+    const today = new Date();
+    const startOfDay = new Date(today);
+    startOfDay.setHours(0, 0, 0, 0);
+    const endOfDay = new Date(today);
+    endOfDay.setHours(23, 59, 59, 999);
+  
     const { data, error } = await supabase
-    .from('reminders')
-    .select('*')
-    .eq('user_id', userId)
-    .eq('sent', false) // Only fetch unsent reminders
-    .order('reminder_at', { ascending: true });
-
-
-    if (error) console.error('Error fetching reminders:', error);
-    else setReminders(data);
+      .from('reminders')
+      .select('*')
+      .eq('user_id', userId)
+      .gte('reminder_at', startOfDay.toISOString())
+      .lte('reminder_at', endOfDay.toISOString())
+      .eq('sent', false)
+      .order('reminder_at', { ascending: true });
+  
+    if (error) {
+      console.error('Error fetching reminders:', error);
+    } else {
+      setReminders(data);
+    }
   };
+  
 
   /// Set a new reminder
   const handleSetReminder = async (index) => {

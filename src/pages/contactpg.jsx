@@ -54,6 +54,7 @@ const Contact = () => {
   return (
     <div className="page-container">
       <Navbar />
+      <div className="section-container">
       <div className="contact-container">
         <h1>We’re Here for You 🌸</h1>
         <p>
@@ -94,12 +95,13 @@ const Contact = () => {
           </div>
         </div>
 
-        <div className="contact-card">
+        <div className="email-card">
           <h2>Prefer Email?</h2>
           <p>
             📩 <a href="mailto:support@serenize.com">support@serenize.com</a>
           </p>
         </div>
+      </div>
       </div>
       <Footer />
     </div>
