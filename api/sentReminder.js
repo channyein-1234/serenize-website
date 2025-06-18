@@ -22,7 +22,7 @@ export default async function sendReminder() {
   console.log('Starting to send reminders');
 
   try {
-    const now = new Date();
+    const now =  new Date();
     
     const { data: reminders, error: remindersError } = await supabase
     .from('reminders')

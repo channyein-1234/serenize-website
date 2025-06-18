@@ -1,5 +1,9 @@
 /* planning.css */
-
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
 /* General Layout */
 .page-container {
   display: flex;
@@ -7,11 +11,13 @@
   min-height: 100vh;
   font-family: sans-serif;
   color: black;
-  background-color: #ffe6f0; /* light pink background */
+  background-color: white; /* light pink background */
   margin: 0;
   padding: 0;
 }
-
+.planning-container{
+  background-color: white;
+}
 nav, footer {
   margin: 0;
   padding: 0;
@@ -22,7 +28,7 @@ nav, footer {
   display: flex;
   overflow-x: auto;
   white-space: nowrap;
-  background-color: #ffb6c1; /* soft pink */
+  background-color: #fdb3be; /* soft pink */
   padding: 10px 0;
   border-bottom: 2px solid #ccc;
 }
@@ -32,14 +38,14 @@ nav, footer {
   width: 60px;
   text-align: center;
   margin: 0 5px;
-  padding: 5px;
+  padding: 2px;
   border-radius: 10px;
   cursor: pointer;
   font-weight: bold;
 }
 
 .calendar-day.today {
-  background-color: #6ec6ff; /* blue for today */
+  background-color: #188791;
   color: black;
 }
 
@@ -51,7 +57,7 @@ nav, footer {
 }
 
 .calendar-day.future {
-  background-color: #ff69b4; /* brighter pink */
+  background-color: #f57ba7; /* brighter pink */
   color: black;
 }
 
@@ -79,8 +85,11 @@ nav, footer {
   flex: 1;
   min-width: 300px;
   padding: 10px;
-  background: white;
+  background: rgb(254, 209, 229);
   border-radius: 10px;
+}
+.task-container h2{
+  font-size: 18px;
 }
 
 /* Unified Input Layout */
@@ -106,6 +115,7 @@ nav, footer {
   font-size: 14px;
   height: 38px;
   border-radius: 6px;
+  background-color: rgb(253, 245, 245);
 }
 
 /* Buttons next to inputs */
@@ -116,7 +126,7 @@ nav, footer {
   padding: 8px 10px;
   height: 38px;
   border-radius: 6px;
-  background-color: #ff69b4;
+  background-color: #ee7ebf;
   color: black;
   border: none;
   cursor: pointer;
@@ -124,7 +134,7 @@ nav, footer {
 
 .task-input button:hover,
 .reminder-set-btn:hover {
-  background-color: #ff85c1;
+  background-color: #f774c3;
 }
 
 /* Task List */
@@ -142,7 +152,7 @@ nav, footer {
   margin-bottom: 5px;
   padding: 10px;
   border-radius: 8px;
-  background-color: white;
+  background-color: rgb(253, 245, 245);
   flex-wrap: wrap;
 }
 
@@ -184,7 +194,7 @@ nav, footer {
   width: 70px;
   height: 38px;
   border-radius: 20px;
-  background-color: #ff69b4;
+  background-color:  #ee7ebf;
   color: black;
   border: none;
   cursor: pointer;
@@ -201,12 +211,16 @@ nav, footer {
 }
 
 /* Reminder Section */
-.reminder-container {
+.reminder-container,
+.reminder-box {
+  overflow: hidden; /* Prevent scrolling */
+  max-height: 100%; /* Ensure it doesn't exceed container bounds */
   flex: 1;
-  min-width: 300px;
-  padding: 10px;
-  background: white;
-  border-radius: 10px;
+}
+
+
+.reminder-container h2{
+  font-size: 18px;
 }
 
 
@@ -222,6 +236,9 @@ nav, footer {
   gap: 5px;
   margin-bottom: 5px;
   flex-wrap: wrap;
+  background-color: rgb(253, 245, 245);
+  border-radius: 5px;
+  padding: 5px;
 }
 
 
@@ -246,7 +263,7 @@ nav, footer {
 
 /* Routine Suggestions  */
 .routine-suggestion-container {
-  background-color: #fef9f9;
+  /* background-color: rgb(254, 209, 229); */
   border-radius: 16px;
   padding: 24px;
   max-width: 1000px;
@@ -257,7 +274,7 @@ nav, footer {
 
 .routine-suggestion-container .title h4 {
   text-align: center;
-  font-size: 1.8rem;
+  font-size: 20px;
   color: #8b2c58;
   margin-bottom: 30px;
 }
@@ -272,7 +289,7 @@ nav, footer {
 .routine-section {
   flex: 1;
   min-width: 250px;
-  background-color: #fff6f9;
+  background-color: #fcfaf9;
   padding: 20px;
   border-radius: 12px;
   box-shadow: 0 3px 10px rgba(0,0,0,0.05);
@@ -300,7 +317,7 @@ nav, footer {
 
 .routine-section li button {
   width: 100%;
-  background-color: #fde3ec;
+  background-color: #eed5de;
   color: #6a1b3d;
   border: none;
   padding: 10px 14px;
@@ -325,8 +342,6 @@ nav, footer {
   padding: 10px 0;
   scroll-snap-type: x mandatory;
   scroll-behavior: smooth;
-  background-color: #f1bdeb;
-  /* Optional: hide vertical scrollbar */
   scrollbar-width: thin;
   scrollbar-color: #888 transparent;
 }
@@ -336,13 +351,13 @@ nav, footer {
 }
 
 .note-scroll-container::-webkit-scrollbar-thumb {
-  background-color: #888;
+  /* background-color: #888; */
   border-radius: 4px;
 }
 
 .note-scroll-item {
   flex: 0 0 300px; /* fixed width, no shrinking */
-  background: #f7d3ea;
+  background: #f8e0ef;
   padding: 16px;
   border-radius: 8px;
   scroll-snap-align: start;
@@ -362,7 +377,332 @@ nav, footer {
 .note-actions button {
   width: 100px;
   margin-top: 10px;
+  background-color: rgb(235, 162, 207);
+  margin-left: 5px;
+}
+.note-actions button:hover{
+  background-color: #ee7ebf;
 }
 
+@media (max-width: 870px) {
+  .calendar-strip {
+    padding: 6px 0;
+    gap: 6px;
+  }
+
+  .calendar-day {
+    width: 50px;
+    font-size: 13px;
+    padding: 4px;
+  }
+
+  .planning-container {
+    padding: 0 6px;
+  }
+
+  .main-sections {
+    gap: 12px;
+    margin-top: 10px;
+  }
+
+  .task-container,
+  .reminder-container,
+  .routine-section,
+  .note-scroll-item {
+    padding: 8px;
+    border-radius: 8px;
+  }
+
+  .task-container h2,
+  .reminder-container h2,
+  .routine-suggestion-container .title h4,
+  .routine-section h5 {
+    font-size: 14px;
+  }
+
+  .task-input input[type="text"],
+  .task-input input[type="time"],
+  .reminder-inputs input[type="text"],
+  .reminder-inputs input[type="time"],
+  .task-left input[type="text"],
+  .task-left input[type="time"] {
+    font-size: 12px;
+    height: 32px;
+    padding: 6px;
+  }
+
+  .task-input button,
+  .reminder-set-btn,
+  .action-btn,
+  .note-actions button {
+    font-size: 11px;
+    height: 32px;
+    padding: 6px 8px;
+    width: 80px;
+  }
+
+  .task-item {
+    padding: 6px;
+    font-size: 13px;
+  }
+
+  .task-text {
+    font-size: 14px;
+  }
+
+  .routine-section li button {
+    font-size: 12px;
+    padding: 8px;
+  }
+
+  .note-scroll-item {
+    font-size: 12px;
+  }
+
+  .note-scroll-item textarea {
+    font-size: 12px;
+  }
+}
+
+
+@media (max-width: 860px) {
+  .routine_container {
+    justify-content: center;
+    gap: 16px;
+  }
+
+  .routine-section {
+    flex: 0 0 calc(33.33% - 16px); /* 3 columns with gap */
+    min-width: 200px;
+    padding: 12px;
+  }
+
+  .routine-suggestion-container {
+    padding: 16px;
+  }
+
+  .routine-section h5 {
+    font-size: 14px;
+  }
+
+  .routine-section li button {
+    font-size: 12px;
+    padding: 8px;
+  }
+}
+@media (max-width: 680px) {
+  .calendar-strip {
+    gap: 2px;
+    padding: 6px 0;
+  }
+
+  .calendar-day {
+    font-size: 10px;
+    padding: 4px 2px;
+    width: 44px;
+  }
+
+  .task-container h2,
+  .reminder-container h2,
+  .routine-suggestion-container .title h4 {
+    font-size: 14px;
+  }
+
+  .task-input input[type="text"],
+  .task-input input[type="time"],
+  .reminder-inputs input[type="text"],
+  .reminder-inputs input[type="time"] {
+    font-size: 11px;
+    padding: 4px;
+    height: 30px;
+  }
+
+  .task-input button,
+  .reminder-set-btn {
+    font-size: 10px;
+    width: 90px;
+    height: 30px;
+    padding: 4px 6px;
+  }
+
+  .task-list .task-item {
+    font-size: 12px;
+    padding: 6px;
+  }
+
+  .task-actions .action-btn {
+    font-size: 10px;
+    width: 60px;
+    height: 30px;
+    padding: 4px 6px;
+  }
+
+  .reminder-list .reminder-item {
+    font-size: 12px;
+  }
+
+  .routine-suggestion-container {
+    padding: 12px;
+  }
+
+  .routine_container {
+    gap: 12px;
+    justify-content: center;
+  }
+
+  .routine-section {
+    flex: 0 0 calc(33.33% - 12px); /* 3 smaller columns */
+    min-width: 160px;
+    padding: 10px;
+  }
+
+  .routine-section h5 {
+    font-size: 13px;
+    margin-bottom: 10px;
+  }
+
+  .routine-section ul {
+    gap: 8px;
+  }
+
+  .routine-section li button {
+    font-size: 11px;
+    padding: 6px 8px;
+  }
+
+  .note-scroll-item {
+    font-size: 12px;
+    padding: 6px;
+  }
+
+  .note-scroll-item textarea {
+    font-size: 12px;
+  }
+
+  .note-actions button {
+    font-size: 10px;
+    padding: 4px 6px;
+    width: 90px;
+  }
+}
+@media (max-width: 560px) {
+  .main-sections {
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .routine_container {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .routine-section {
+    flex: 1 1 100%;
+    width: 100%;
+    max-width: 320px;
+  }
+
+  .task-container,
+  .reminder-container,
+  .routine-suggestion-container,
+  .note-scroll-item {
+    width: 100%;
+  }
+
+  .task-input,
+  .reminder-inputs {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .task-actions {
+    flex-wrap: wrap;
+    justify-content: flex-start;
+  }
+
+  .task-item {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .note-scroll-container {
+    flex-direction: row;
+    overflow-x: auto;
+  }
+  
+
+  .note-scroll-item {
+    width: 100%;
+  }
+}
+@media (max-width: 430px) {
+  body, .page-container {
+    font-size: 12px;
+  }
+
+  .calendar-day {
+    font-size: 10px;
+    width: 40px;
+    padding: 4px 2px;
+  }
+
+  .task-container h2,
+  .reminder-container h2,
+  .routine-suggestion-container .title h4,
+  .routine-section h5 {
+    font-size: 14px;
+  }
+
+  .task-input input[type="text"],
+  .task-input input[type="time"],
+  .reminder-inputs input[type="text"],
+  .reminder-inputs input[type="time"],
+  .task-left input[type="text"],
+  .task-left input[type="time"] {
+    font-size: 11px;
+    padding: 6px;
+  }
+
+  .task-input button,
+  .reminder-set-btn,
+  .action-btn {
+    font-size: 11px;
+    padding: 6px 8px;
+    width: 80px;
+    height: 34px;
+  }
+
+  .task-item {
+    padding: 6px;
+  }
+
+  .task-text {
+    font-size: 13px;
+  }
+
+  .routine-section li button {
+    font-size: 12px;
+    padding: 6px 10px;
+  }
+
+  .note-scroll-item {
+    padding: 8px;
+    font-size: 12px;
+  }
+
+  .note-actions button {
+    font-size: 11px;
+    padding: 4px 6px;
+    width: 90px;
+  }
+
+  .routine-section {
+    padding: 12px;
+  }
+
+  .routine-suggestion-container {
+    padding: 16px;
+  }
+}
 
 

@@ -203,8 +203,28 @@ useEffect(() => {
   }, [selectedDate, selectedISO, userId]);
 
     //adding new task to supabase
-    const handleAddTask = async (taskText = newTask) => {
-      if (!taskText.trim() || !userId) return;
+    //adding new task to supabase
+  const handleAddTask = async () => {
+    if (!newTask.trim() || !userId) return;
+
+    const { error } = await supabase.from('tasks').insert([
+      {
+        user_id: userId,
+        task: newTask,
+        date: selectedISO,
+        time: newTaskTime,
+        done: false,
+      },
+    ]);
+
+    if (error) console.error('Error adding task:', error);
+    else {
+      setNewTask('');
+      setNewTaskTime('12:00');
+      setSelectedDate(new Date(selectedDate));
+    }
+  };
+    const handleAddTaskString = async (taskText = newTask) => {
     
       const { error } = await supabase.from('tasks').insert([
         {
@@ -623,33 +643,33 @@ const saveReminderEdit = async () => {
             <div className="routine-section">
               <h5>🌅 Morning</h5>
               <ul>
-                <li><button onClick={() => handleAddTask('☀️ Meditation')}>☀️ Meditation</button></li>
-                <li><button onClick={() => handleAddTask('🚿 Cold Shower')}>🚿 Cold Shower</button></li>
-                <li><button onClick={() => handleAddTask('🍳 Healthy Breakfast')}>🍳 Healthy Breakfast</button></li>
-                <li><button onClick={() => handleAddTask('📖 Read 10 Pages')}>📖 Read 10 Pages</button></li>
-                <li><button onClick={() => handleAddTask('📝 Plan the Day')}>📝 Plan the Day</button></li>
+                <li><button onClick={() => handleAddTaskString('☀️ Meditation')}>☀️ Meditation</button></li>
+                <li><button onClick={() => handleAddTaskString('🚿 Cold Shower')}>🚿 Cold Shower</button></li>
+                <li><button onClick={() => handleAddTaskString('🍳 Healthy Breakfast')}>🍳 Healthy Breakfast</button></li>
+                <li><button onClick={() => handleAddTaskString('📖 Read 10 Pages')}>📖 Read 10 Pages</button></li>
+                <li><button onClick={() => handleAddTaskString('📝 Plan the Day')}>📝 Plan the Day</button></li>
               </ul>
             </div>
 
             <div className="routine-section">
               <h5>🌞 Afternoon</h5>
               <ul>
-                <li><button onClick={() => handleAddTask('💻 Focused Work')}>💻 Focused Work</button></li>
-                <li><button onClick={() => handleAddTask('🥗 Light Lunch')}>🥗 Light Lunch</button></li>
-                <li><button onClick={() => handleAddTask('👣 Short Walk')}>👣 Short Walk</button></li>
-                <li><button onClick={() => handleAddTask('🧘 5-min Breathing')}>🧘 5-min Breathing</button></li>
-                <li><button onClick={() => handleAddTask('📅 Review Calendar')}>📅 Review Calendar</button></li>
+                <li><button onClick={() => handleAddTaskString('💻 Focused Work')}>💻 Focused Work</button></li>
+                <li><button onClick={() => handleAddTaskString('🥗 Light Lunch')}>🥗 Light Lunch</button></li>
+                <li><button onClick={() => handleAddTaskString('👣 Short Walk')}>👣 Short Walk</button></li>
+                <li><button onClick={() => handleAddTaskString('🧘 5-min Breathing')}>🧘 5-min Breathing</button></li>
+                <li><button onClick={() => handleAddTaskString('📅 Review Calendar')}>📅 Review Calendar</button></li>
               </ul>
             </div>
 
             <div className="routine-section">
               <h5>🌙 Night</h5>
               <ul>
-                <li><button onClick={() => handleAddTask('📵 Digital Detox')}>📵 Digital Detox</button></li>
-                <li><button onClick={() => handleAddTask('🛏️ Sleep Early')}>🛏️ Sleep Early</button></li>
-                <li><button onClick={() => handleAddTask('🧼 Night Skincare')}>🧼 Night Skincare</button></li>
-                <li><button onClick={() => handleAddTask('📓 Gratitude Journal')}>📓 Gratitude Journal</button></li>
-                <li><button onClick={() => handleAddTask('📚 Light Reading')}>📚 Light Reading</button></li>
+                <li><button onClick={() => handleAddTaskString('📵 Digital Detox')}>📵 Digital Detox</button></li>
+                <li><button onClick={() => handleAddTaskString('🛏️ Sleep Early')}>🛏️ Sleep Early</button></li>
+                <li><button onClick={() => handleAddTaskString('🧼 Night Skincare')}>🧼 Night Skincare</button></li>
+                <li><button onClick={() => handleAddTaskString('📓 Gratitude Journal')}>📓 Gratitude Journal</button></li>
+                <li><button onClick={() => handleAddTaskString('📚 Light Reading')}>📚 Light Reading</button></li>
               </ul>
             </div>
           </div>
@@ -696,8 +716,7 @@ const saveReminderEdit = async () => {
                 </div>
               );
               
-})}
-
+              })}
         </div>
 
         

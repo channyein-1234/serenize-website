@@ -2,11 +2,10 @@
 
 .footer {
     width: 100%;
-    background-color: #eb7ca7; /* dark pink */
+    background-color: #ecbdbd; /* dark pink */
     color: white;
     padding: 20px 30px;
     text-align: center;
-    margin-top: 40px;
     border-top-left-radius: 10px;
     border-top-right-radius: 10px;
     
@@ -23,12 +22,13 @@
   .footer-content p{
     font-size: 12px;
     font-weight: bold;
+    color: rgb(109, 103, 103);
     
   }
 
   .footer-content h3{
     font-size: 13px;
-    text-shadow: 2px 2px 2px rgb(80, 82, 82)
+    color: rgb(109, 103, 103);
     ;
   }
 

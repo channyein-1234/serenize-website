@@ -79,7 +79,7 @@ const Wellness = () => {
   }, [userId]);
 
   return (
-    <div>
+    <div className="page-container">
       <Navbar />
       <div className="wellness-container">
         <section className="intro">
