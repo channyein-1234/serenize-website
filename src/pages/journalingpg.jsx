@@ -24,7 +24,7 @@ const JournalPreviewGrid = ({ journals, loadJournalForEdit, deleteJournal }) => 
 
   return (
     <div className="journal-preview-container" style={{ marginTop: "30px" }}>
-      <h2>Journals</h2>
+      <h2>Saved Journals</h2>
       <div className="journal-grid">
         {journals.length === 0 ? (
           <p>No journals found.</p>
@@ -33,13 +33,7 @@ const JournalPreviewGrid = ({ journals, loadJournalForEdit, deleteJournal }) => 
             <div key={journal.id} className="journal-preview">
               <div
                 className="canvas-wrapper"
-                style={{
-                  position: "relative",
-                  width: "300px",
-                  height: "300px",
-                  border: "1px solid #ccc",
-                  marginBottom: "10px",
-                }}
+                
               >
                 <ReactSketchCanvas
                   ref={(el) => {
@@ -107,8 +101,8 @@ const JournalPreviewGrid = ({ journals, loadJournalForEdit, deleteJournal }) => 
               </div>
 
               <div className="journal-actions">
-                <button onClick={() => loadJournalForEdit(journal)}>Edit</button>
-                <button onClick={() => deleteJournal(journal.id)}>Delete</button>
+                <button className="journal-edit" onClick={() => loadJournalForEdit(journal)}>Edit</button>
+                <button className="journal-delete" onClick={() => deleteJournal(journal.id)}>Delete</button>
               </div>
             </div>
           ))
@@ -313,7 +307,7 @@ const deleteJournal = async (id) => {
 
 
   return (
-    <div>
+    <div className="page-container">
       <Navbar />
       <div className="editor-container">
         {/* Sticker selection panel */}
@@ -334,7 +328,7 @@ const deleteJournal = async (id) => {
         </div>
 
         {/* Main editor and tools */}
-        <div style={{ flex: 1, position: "relative" }}>
+        <div className="journal-container" >
           <h1>Tools</h1>
           <div className="tools-container">
             <div className="picker">
@@ -391,7 +385,7 @@ const deleteJournal = async (id) => {
           </div>
 
           {/* Canvas and overlays container */}
-          <div className="canvas-wrapper" style={{ position: "relative", height: "600px", border: "1px solid #ccc" }}>
+          <div className="canvas-wrapper" style={{  border: "1px solid #ccc" }}>
             <ReactSketchCanvas
               ref={canvasRef}
               strokeColor={strokeColor}
@@ -525,12 +519,7 @@ const deleteJournal = async (id) => {
             journals={journals} 
             loadJournalForEdit={loadJournalForEdit} 
             deleteJournal={deleteJournal} 
-          />
-
-         
-
-         
-          
+          /> 
         </div>
       </div>
       <Footer />

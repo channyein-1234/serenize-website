@@ -38,10 +38,9 @@ const HomePage = () => {
   const [quickNote, setQuickNote] = useState('');
   const [editingNoteId, setEditingNoteId] = useState(null);
   const [moodData, setMoodData] = useState([]);
-  const today = new Date().toISOString().split('T')[0]; // Format: 'YYYY-MM-DD'
+  const today = new Date().toLocaleDateString('en-CA'); // Returns YYYY-MM-DD in local time
   const [notes, setNotes] = useState([]);
   const [, setUpdateMessage] = useState('');
-
 
   useEffect(() => {
     const fetchUser = async () => {
@@ -71,6 +70,7 @@ useEffect(() => {
       .select('*')
       .eq('user_id', user.id)
       .eq('date', today)
+      .eq('done', false) 
       .order('created_at', { ascending: true });
 
     if (error) {
@@ -89,8 +89,7 @@ useEffect(() => {
 const fetchNotes = useCallback(async () => {
   if (!user) return;
 
-  const today = new Date().toISOString().split('T')[0];
-
+  const today = new Date().toLocaleDateString('en-CA');
   const { data, error } = await supabase
     .from('notes')
     .select('*')
@@ -317,9 +316,9 @@ useEffect(() => {
                   {reminders.length === 0 ? (
                     <p>No reminders today.</p>
                   ) : (
-                    <ul>
+                    <ul className='reminder-ul' >
                       {reminders.map((rem) => (
-                        <li key={rem.id}>
+                        <li className='reminder-li' key={rem.id}>
                           {rem.title}
                         </li>
                         ))}
@@ -358,10 +357,10 @@ useEffect(() => {
           <div className="goals-box">
             <h3>Today's Goals</h3>
             <ul>
-              {goals.filter(goal => !goal.done).length === 0 ? (
-                <p>No goals for this day.</p>
+              {goals.length === 0 ? (
+                <li style={{ listStyle: 'none' }}>No goals for this day.</li> // <li> instead of <p>
               ) : (
-                goals.filter(goal => !goal.done).map(goal => (
+                goals.map(goal => (
                   <li key={goal.id}>
                     <input
                       type="checkbox"
@@ -374,6 +373,7 @@ useEffect(() => {
                 ))
               )}
             </ul>
+
 
             <input
               type="text"

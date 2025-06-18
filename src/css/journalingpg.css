@@ -1,15 +1,28 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+.page-container{
+  width: 100%;
+  height: 100%;
+}
+
 /* Container */
 .editor-container {
   display: flex;
-  flex-direction: row;
+  flex-direction: column;
   gap: 2rem;
   padding: 1rem;
   font-size: 12px;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
 }
 
 /* Sticker Panel */
 .sticker-panel {
-  width: 120px;
+  width: 100%;
   display: flex;
   flex-direction: column;
   font-size: 12px;
@@ -21,10 +34,11 @@
 }
 
 .sticker-scroll {
-  overflow-y: auto;
-  max-height: 500px;
+  width: 100%;
+  overflow-x: auto;
+  height: 100px;
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
   gap: 8px;
 }
 
@@ -36,6 +50,10 @@
   border-radius: 6px;
 }
 
+.journal-container{
+  width: 100%;
+}
+
 /* Tools Panel */
 .tools-container {
   display: flex;
@@ -43,6 +61,7 @@
   gap: 1rem;
   margin-bottom: 1rem;
   font-size: 12px;
+  width: 100%;
 }
 
 .picker,
@@ -54,6 +73,7 @@
   flex-wrap: wrap;
 }
 
+
 .tools button {
   font-size: 12px;
   padding: 2px 8px;
@@ -61,6 +81,11 @@
   min-width: 60px;
   max-width: 80px;
   line-height: 1;
+  background-color: #188791;
+}
+
+.tools button:hover{
+  background-color: #6fc8ac;
 }
 
 /* Inputs */
@@ -70,6 +95,9 @@
   height: 20px;
   padding: 0;
   border: none;
+}
+.picker input[type="file"]{
+  width: 300px;
 }
 
 .sizing {
@@ -88,7 +116,7 @@
 .canvas-wrapper {
   flex: 1;
   position: relative;
-  min-width: 500px;
+  min-width: 90%;
   height: 500px;
   border: 1px solid #ccc;
   border-radius: 8px;
@@ -206,18 +234,7 @@ button:hover {
 }
 
 /* Card actions buttons inside journal cards */
-.card-actions button {
-  flex: 1;
-  background-color: #10b981;
-}
 
-.card-actions button.delete {
-  background-color: #ef4444;
-}
-
-.card-actions button:hover {
-  opacity: 0.9;
-}
 
 /* Save Button */
 .save-btn-container {
@@ -228,4 +245,181 @@ button:hover {
 
 .save-button {
   width: 140px;
+  background-color: #188791;
+  margin: 20px;
+}
+.journal-actions{
+  display: flex;
+  justify-content: center;
+}
+
+
+.journal-actions button{
+  background-color:#188791 ;
+  width: 70px;
+  margin: 10px;
+}
+
+
+.save-button:hover, 
+.journal-edit:hover{
+  background-color:#6fc8ac;
+}
+
+.journal-delete:hover{
+  background-color: rgb(198, 47, 47);
+
+}
+
+.journal-preview-container{
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  background-color:  #ecbdbd;
+  overflow-y: auto;
+  height: 500px;
+  border: 2px solid pink;
+}
+.journal-preview-container h2{
+  font-weight: bold;
+  padding: 10px 10px;
+  font-size: 20px;
+}
+.journal-grid{
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+}
+.journal-preview{
+  width: 80%;
+}
+
+
+@media (max-width: 650px) {
+  button,
+  .tools button,
+  .save-button,
+  .journal-actions button,
+  .card-actions button {
+    font-size: 10px;
+    padding: 4px 8px;
+    width: auto;
+    min-width: 60px;
+    height: 30px;
+  }
+
+  .canvas-wrapper {
+    min-width: 80%;
+    height: 360px;
+  }
+
+  .save-button {
+    width: 100px;
+  }
+
+  .journal-actions button {
+    width: 60px;
+    margin: 6px;
+  }
+
+  .card-actions button {
+    padding: 4px;
+  }
+  .sizing {
+    font-size: 10px;
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .sizing label {
+    font-size: 10px;
+    margin-bottom: 4px;
+  }
+
+  .sizing input[type="range"] {
+    width: 100%;
+    max-width: 150px;
+  }
+}
+@media (max-width: 400px) {
+  body,
+  .editor-container,
+  .tools-container,
+  .sticker-panel,
+  .journal-preview-container {
+    font-size: 10px;
+  }
+
+  h1, h2, h3, label {
+    font-size: 12px;
+  }
+
+  button,
+  .tools button,
+  .save-button,
+  .journal-actions button,
+  .card-actions button {
+    font-size: 9px;
+    padding: 3px 6px;
+    min-width: 50px;
+    height: 24px;
+    border-radius: 6px;
+  }
+
+  .sticker-scroll {
+    overflow-x: auto;
+    width: 300px;
+    height: 80px;
+    gap: 4px;
+  }
+
+  .sticker-scroll img {
+    width: 36px;
+    height: 36px;
+  }
+
+  .picker input[type="file"] {
+    width: 200px;
+  }
+
+  .canvas-wrapper {
+    height: 300px;
+    min-width: 85%;
+  }
+
+  .sizing label {
+    font-size: 9px;
+  }
+
+  .sizing input[type="range"] {
+    max-width: 120px;
+  }
+
+  .save-button {
+    width: 90px;
+    margin: 10px;
+  }
+
+  .journal-actions button {
+    width: 50px;
+    margin: 6px;
+  }
+
+  .journal-preview-container h2 {
+    font-size: 16px;
+  }
+
+  .rnd-box textarea {
+    font-size: 10px;
+  }
+
+  .delete-btn {
+    width: 16px;
+    height: 16px;
+    font-size: 10px;
+    line-height: 16px;
+  }
 }
