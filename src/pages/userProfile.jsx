@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import supabase from './supabaseClient';
-import '../css/userProfile.css';
+import '../css/profile.css';
 import Navbar from './navbar';
 import Footer from './footerpg';
 
@@ -8,6 +9,7 @@ const UserProfile = () => {
   const [form, setForm] = useState({ name: '', email: '', phone: '' });
   const [status, setStatus] = useState('');
   const [loading, setLoading] = useState(false);
+  const navigate = useNavigate();
 
   const fetchProfile = async () => {
     const {
@@ -65,13 +67,22 @@ const UserProfile = () => {
     setLoading(false);
   };
 
+  // Logout handler (same as admin)
+  const handleLogout = async () => {
+    const { error } = await supabase.auth.signOut();
+    if (!error) {
+      navigate('/login');
+    } else {
+      setStatus('Logout failed: ' + error.message);
+    }
+  };
+
   useEffect(() => {
     fetchProfile();
   }, []);
 
   return (
     <div className='page-container'>
-        <>
       <Navbar />
       <div className="user-profile-section">
         <div className="user-profile-container">
@@ -86,18 +97,21 @@ const UserProfile = () => {
             <label>Phone</label>
             <input type="tel" name="phone" value={form.phone} onChange={handleChange} />
 
-            <button type="submit" disabled={loading}>
+            <button className='update-button' type="submit" disabled={loading}>
               {loading ? 'Updating...' : 'Update Profile'}
             </button>
           </form>
 
           {status && <p className="status">{status}</p>}
+
+          {/* Logout Button */}
+          <button className="logout-button" onClick={handleLogout}>
+            Log Out
+          </button>
         </div>
       </div>
       <Footer />
-    </>
     </div>
-    
   );
 };
 

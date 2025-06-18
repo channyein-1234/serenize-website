@@ -1,20 +1,17 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import logo from '../img/serenize_logo.png';
 import '../css/adminpg.css';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faUser, faTrash } from '@fortawesome/free-solid-svg-icons';
+import { faTrash } from '@fortawesome/free-solid-svg-icons';
 import supabase from './supabaseClient';
+import AdminNaV from './adminNav';
+import Footer from './footerpg';
 
 const Admin = () => {
   const navigate = useNavigate();
   const [messages, setMessages] = useState([]);
   const [expanded, setExpanded] = useState({});
   const [user, setUser] = useState(null);
-
-  const handleProfileClick = () => {
-    navigate('/adminProfile');
-  };
 
   useEffect(() => {
     const fetchUser = async () => {
@@ -86,21 +83,9 @@ const Admin = () => {
   const toggleExpand = (id) => {
     setExpanded(prev => ({ ...prev, [id]: !prev[id] }));
   };
-
-
-
   return (
     <div className="admin-page">
-      <nav className="admin-navbar">
-        <img src={logo} alt="Logo" className="logo" />
-        <FontAwesomeIcon
-          className="profile-icon"
-          size="2x"
-          onClick={handleProfileClick}
-          icon={faUser}
-        />
-      </nav>
-
+      <AdminNaV/>
       <div className="admin-content">
         <h2>Welcome, Admin!</h2>
 
@@ -152,12 +137,13 @@ const Admin = () => {
                   Reply ✉️
                 </a>
 
-                {msg.read && <span className="read-badge">Read ✅</span>}
+                {msg.read && <span className="read-badge">Read </span>}
               </div>
             ))
           )}
         </section>
       </div>
+      <Footer/>
     </div>
   );
 };

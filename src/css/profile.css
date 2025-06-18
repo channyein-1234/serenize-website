@@ -35,7 +35,7 @@ html, body {
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  background-color: #f3bfc8;
+  background-color:#ead5da;
   padding: 2rem;
   border-radius: 20px;
   max-width: 500px;
@@ -47,7 +47,7 @@ html, body {
 .user-profile-container h2 {
   margin-bottom: 1.5rem;
   font-size: 1.8rem;
-  color:  #188791;
+  color:   #9f3e5d;
   text-align: center;
 }
 
@@ -63,6 +63,10 @@ html, body {
   margin-bottom: 0.3rem;
   color: #444;
   text-align: left;
+}
+.user-profile-container form{
+  background-color: #f2eeee;
+  padding: 20px 20px;
 }
 
 .user-profile-container input {
@@ -80,7 +84,7 @@ html, body {
 }
 
 /* Submit Button */
-.user-profile-container button {
+.update-button {
   background-color: #e26a8d;
   color: white;
   border: none;
@@ -88,11 +92,31 @@ html, body {
   font-size: 1rem;
   cursor: pointer;
   transition: background-color 0.3s;
+  margin-bottom: 20px;
 }
 
-.user-profile-container button:hover {
+.update-button:hover {
   background-color: #cc577b;
 }
+
+.logout-button {
+  margin-top: 20px;
+  background-color: #c8091c; /* Bootstrap-style danger red */
+  color: white;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 6px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  display: inline-block;
+}
+
+.logout-button:hover {
+  background-color: #a71d2a; /* Darker red on hover */
+}
+
 
 /* Status Message */
 .status {
