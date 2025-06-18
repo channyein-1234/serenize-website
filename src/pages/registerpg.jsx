@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import '../css/registerForm.css';
+import '../css/authForm.css'; // use the same css file
 import { useNavigate } from 'react-router-dom';
 import supabase from './supabaseClient';
 
@@ -14,7 +14,7 @@ const RegisterForm = () => {
   });
 
   const [errors, setErrors] = useState({});
-  const [showConfirmation, setShowConfirmation] = useState(false); // New state for showing confirmation screen
+  const [showConfirmation, setShowConfirmation] = useState(false);
 
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
@@ -47,85 +47,73 @@ const RegisterForm = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-  
-    // Validate form fields
+
     const validationErrors = validate();
     if (Object.keys(validationErrors).length > 0) {
       setErrors(validationErrors);
       return;
     }
-  
+
     setErrors({});
-  
-    // Attempt to register the user
+
     const { data, error } = await supabase.auth.signUp({
       email: form.email,
       password: form.password,
     });
-    
-    console.log(data);
 
-    
-  
     if (error) {
       alert('Sign-up failed: ' + error.message);
       return;
     }
-  
+
     const user = data.user;
-  
-    // If user was created, insert additional info into custom users table
+
     if (user) {
       const { error: insertError } = await supabase.from('users').insert([
         {
-          id: user.id, // UUID string now matches column type
+          id: user.id,
           name: form.name,
           email: form.email,
           phone: form.phone,
           role: 'user'
         }
       ]);
-      
-  
+
       if (insertError) {
-        console.error('Insert into users table failed:', insertError);
-        alert('Something went wrong saving your profile.'+ insertError.message);
+        alert('Something went wrong saving your profile.' + insertError.message);
         return;
       }
     }
-  
-    // Show email confirmation screen (DO NOT navigate to login yet)
+
     setShowConfirmation(true);
   };
-  
 
   if (showConfirmation) {
     return (
-      <div className="registerForm-container max-w-md mx-auto bg-white p-6 rounded shadow">
-        <h2 className="text-2xl font-bold mb-4">Confirm Your Email</h2>
-        <p>
-          Thank you for registering, <strong>{form.name}</strong>! <br />
-          We have sent a confirmation email to <strong>{form.email}</strong>.
-          <br />
-          Please check your inbox and click the confirmation link to activate
-          your account.
-        </p>
-        <button
-          className="mt-6 w-full bg-blue-500 text-white py-2 rounded hover:bg-blue-600"
-          onClick={() => navigate('/login')}
-        >
-          Go to Login
-        </button>
+      <div className="login-container">
+        <div className="login-form">
+          <h2>Confirm Your Email</h2>
+          <p>
+            Thank you for registering, <strong>{form.name}</strong>! <br />
+            We have sent a confirmation email to <strong>{form.email}</strong>.
+            <br />
+            Please check your inbox and click the confirmation link to activate
+            your account.
+          </p>
+          <button
+            className="submit-btn"
+            onClick={() => navigate('/login')}
+          >
+            Go to Login
+          </button>
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="registerForm-container">
-      <form
-        onSubmit={handleSubmit}
-        className="max-w-md mx-auto bg-white p-6 rounded shadow"
-      >
+    <div className="login-container">
+      <form onSubmit={handleSubmit} className="login-form">
         <button
           type="button"
           className="previous-btn"
@@ -134,64 +122,49 @@ const RegisterForm = () => {
         >
           ←
         </button>
-        <h2 className="text-2xl font-bold mb-4">Register</h2>
+        <h2>Register</h2>
 
         {/* Name */}
-        <div className="mb-4">
-          <label className="block mb-1">Name</label>
-          <input
-            type="text"
-            name="name"
-            value={form.name}
-            onChange={handleChange}
-            className="w-full border border-gray-300 rounded px-3 py-2"
-          />
-          {errors.name && <p className="error-message">{errors.name}</p>}
-        </div>
+        <label>Name</label>
+        <input
+          type="text"
+          name="name"
+          value={form.name}
+          onChange={handleChange}
+        />
+        {errors.name && <p className="error-message">{errors.name}</p>}
 
         {/* Email */}
-        <div className="mb-4">
-          <label className="block mb-1">Email</label>
-          <input
-            type="email"
-            name="email"
-            value={form.email}
-            onChange={handleChange}
-            className="w-full border border-gray-300 rounded px-3 py-2"
-          />
-          {errors.email && <p className="error-message">{errors.email}</p>}
-        </div>
+        <label>Email</label>
+        <input
+          type="email"
+          name="email"
+          value={form.email}
+          onChange={handleChange}
+        />
+        {errors.email && <p className="error-message">{errors.email}</p>}
 
         {/* Phone */}
-        <div className="mb-4">
-          <label className="block mb-1">Phone</label>
-          <input
-            type="tel"
-            name="phone"
-            value={form.phone}
-            onChange={handleChange}
-            className="w-full border border-gray-300 rounded px-3 py-2"
-          />
-          {errors.phone && <p className="error-message">{errors.phone}</p>}
-        </div>
+        <label>Phone</label>
+        <input
+          type="tel"
+          name="phone"
+          value={form.phone}
+          onChange={handleChange}
+        />
+        {errors.phone && <p className="error-message">{errors.phone}</p>}
 
         {/* Password */}
-        <div className="mb-4">
-          <label className="block mb-1">Password</label>
-          <input
-            type="password"
-            name="password"
-            value={form.password}
-            onChange={handleChange}
-            className="w-full border border-gray-300 rounded px-3 py-2"
-          />
-          {errors.password && <p className="error-message">{errors.password}</p>}
-        </div>
+        <label>Password</label>
+        <input
+          type="password"
+          name="password"
+          value={form.password}
+          onChange={handleChange}
+        />
+        {errors.password && <p className="error-message">{errors.password}</p>}
 
-        <button
-          type="submit"
-          className="submit-btn w-full bg-blue-500 text-white py-2 rounded hover:bg-blue-600"
-        >
+        <button type="submit" className="submit-btn">
           Register
         </button>
       </form>

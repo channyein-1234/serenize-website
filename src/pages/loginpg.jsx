@@ -1,9 +1,7 @@
 import React, { useState } from 'react';
-import '../css/loginForm.css';
+import '../css/authForm.css';
 import { useNavigate } from 'react-router-dom';
 import supabase from './supabaseClient';
-
-
 
 const LoginForm = () => {
   const navigate = useNavigate();
