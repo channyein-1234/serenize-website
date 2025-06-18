@@ -1,77 +1,105 @@
-/* Make page take full height */
-html, body, #root {
-    height: 100%;
-    margin: 0;
-    padding: 0;
-  }
-  
-  /* Flex layout for page wrapper */
-  .page-container {
-    display: flex;
-    flex-direction: column;
-    min-height: 100vh;
-  }
-  
-  /* Ensure main content grows to fill space between navbar and footer */
-  .user-profile-container {
-    max-width: 400px;
-    margin: 40px auto;
-    padding: 2rem;
-    background: rgb(162, 196, 236);
-    border-radius: 12px;
-    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
-    flex-grow: 1; /* Ensures it expands if needed */
-  }
-  
-  /* Typography and input styles */
-  .user-profile-container h2 {
-    text-align: center;
-    margin-bottom: 1.5rem;
-    color: #333;
-  }
-  
-  .user-profile-container label {
-    display: block;
-    margin-top: 1rem;
-    font-weight: 500;
-    color: #444;
-  }
-  
-  .user-profile-container input {
-    width: 100%;
-    padding: 0.6rem;
-    margin-top: 0.3rem;
-    border: 1px solid #ccc;
-    border-radius: 8px;
-  }
-  
-  /* Button styling */
-  .user-profile-container button {
-    width: 100%;
-    margin-top: 1.5rem;
-    padding: 0.7rem;
-    background-color: #f27fc0;
-    color: white;
-    border: none;
-    border-radius: 8px;
-    font-weight: bold;
-    cursor: pointer;
-  }
-  
-  .user-profile-container button:hover {
-    background-color: #f35d8f;
-  }
-  
-  .user-profile-container button:disabled {
-    background-color: #93c5fd;
-    cursor: not-allowed;
-  }
-  
-  /* Status message */
-  .status {
-    margin-top: 1rem;
-    text-align: center;
-    color: #0f5132;
-    font-weight: 500;
-  }
-  
+/* Reset and Base */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html, body {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background-color: #fdf8f9;
+  color: #333;
+  height: 100%;
+}
+
+/* Layout Container */
+.page-container {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  background-color: #f9f4f6;
+}
+
+/* User Profile Section */
+.user-profile-section {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  padding: 2rem;
+  background: linear-gradient(to bottom right, #ffeaf1, #fdf8f9);
+}
+
+/* Form Container */
+.user-profile-container {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  background-color: #f3bfc8;
+  padding: 2rem;
+  border-radius: 20px;
+  max-width: 500px;
+  width: 100%;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+/* Heading */
+.user-profile-container h2 {
+  margin-bottom: 1.5rem;
+  font-size: 1.8rem;
+  color:  #188791;
+  text-align: center;
+}
+
+/* Form Elements */
+.user-profile-container form {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.user-profile-container label {
+  font-weight: 600;
+  margin-bottom: 0.3rem;
+  color: #444;
+  text-align: left;
+}
+
+.user-profile-container input {
+  padding: 0.8rem;
+  border: 1px solid #ccc;
+  border-radius: 10px;
+  font-size: 1rem;
+  transition: border-color 0.2s;
+}
+
+.user-profile-container input:focus {
+  outline: none;
+  border-color: #e26a8d;
+  box-shadow: 0 0 0 2px rgba(226, 106, 141, 0.2);
+}
+
+/* Submit Button */
+.user-profile-container button {
+  background-color: #e26a8d;
+  color: white;
+  border: none;
+  border-radius: 10px;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.user-profile-container button:hover {
+  background-color: #cc577b;
+}
+
+/* Status Message */
+.status {
+  margin-top: 1rem;
+  color:  #188791;
+  text-align: center;
+  font-weight: 500;
+}
+
+/* Responsive */

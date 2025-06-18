@@ -73,24 +73,26 @@ const UserProfile = () => {
     <div className='page-container'>
         <>
       <Navbar />
-      <div className="user-profile-container">
-        <h2>User Profile</h2>
-        <form onSubmit={handleUpdate}>
-          <label>Name</label>
-          <input type="text" name="name" value={form.name} onChange={handleChange} />
+      <div className="user-profile-section">
+        <div className="user-profile-container">
+          <h2>User Profile</h2>
+          <form onSubmit={handleUpdate}>
+            <label>Name</label>
+            <input type="text" name="name" value={form.name} onChange={handleChange} />
 
-          <label>Email</label>
-          <input type="email" name="email" value={form.email} onChange={handleChange} />
+            <label>Email</label>
+            <input type="email" name="email" value={form.email} onChange={handleChange} />
 
-          <label>Phone</label>
-          <input type="tel" name="phone" value={form.phone} onChange={handleChange} />
+            <label>Phone</label>
+            <input type="tel" name="phone" value={form.phone} onChange={handleChange} />
 
-          <button type="submit" disabled={loading}>
-            {loading ? 'Updating...' : 'Update Profile'}
-          </button>
-        </form>
+            <button type="submit" disabled={loading}>
+              {loading ? 'Updating...' : 'Update Profile'}
+            </button>
+          </form>
 
-        {status && <p className="status">{status}</p>}
+          {status && <p className="status">{status}</p>}
+        </div>
       </div>
       <Footer />
     </>

@@ -28,14 +28,14 @@ const Navbar = () => {
         </div>
 
         <nav className='navbar'>
-  <Link to="/planning"><button><FontAwesomeIcon icon={faMarker} /> <br /> PlanTasks</button></Link>
-  <Link to="/journaling"><button><FontAwesomeIcon icon={faBook} /><br /> Journaling</button></Link>
-  <Link to="/wellness"><button><FontAwesomeIcon icon={faSpa} /><br /> Wellness</button></Link>
-  <Link to="/chatbot"><button><FontAwesomeIcon icon={faRobot} /><br /> Chatbot</button></Link>
-  <Link to="/contact"><button><FontAwesomeIcon icon={faLink} /><br /> Contact</button></Link>
-  <Link to="/userprofile"><button><FontAwesomeIcon icon={faUser} /><br />Profile</button></Link>
+          <Link to="/planning"><button><FontAwesomeIcon icon={faMarker} /> <br /> <p>PlanTasks</p></button></Link>
+          <Link to="/journaling"><button><FontAwesomeIcon icon={faBook} /><br /> <p>Journaling</p></button></Link>
+          <Link to="/wellness"><button><FontAwesomeIcon icon={faSpa} /><br /> <p>Journaling</p></button></Link>
+          <Link to="/chatbot"><button><FontAwesomeIcon icon={faRobot} /><br /><p> Chatbot</p></button></Link>
+          <Link to="/contact"><button><FontAwesomeIcon icon={faLink} /><br /> <p>Contact</p></button></Link>
+          <Link to="/userprofile"><button><FontAwesomeIcon icon={faUser} /><br /><p>Profile</p></button></Link>
 
-</nav>
+        </nav>
       </div>
     </div>
   );
