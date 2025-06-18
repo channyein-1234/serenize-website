@@ -92,13 +92,10 @@ const RegisterForm = () => {
     return (
       <div className="login-container">
         <div className="login-form">
-          <h2>Confirm Your Email</h2>
           <p>
             Thank you for registering, <strong>{form.name}</strong>! <br />
-            We have sent a confirmation email to <strong>{form.email}</strong>.
-            <br />
-            Please check your inbox and click the confirmation link to activate
-            your account.
+            
+            
           </p>
           <button
             className="submit-btn"

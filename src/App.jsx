@@ -2,7 +2,7 @@
 import React  from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import HomePage from './pages/Homepg';
-import WelcomePage from './pages/Welcomepg';
+import WelcomePage from './pages/greetpg';
 import LoginForm from './pages/loginpg';
 import RegisterForm from './pages/registerpg';
 import ResetPassword from './pages/resetpwpg';
@@ -14,6 +14,7 @@ import Chatbot from './pages/chatbot';
 import AdminPage from './pages/adminpg'; 
 import RouteRestriction from './pages/routeRestriction';
 import UserProfile from './pages/userProfile';
+import AdminProfile from './pages/adminProfile';
 
 function App() {
   if ('serviceWorker' in navigator) {
@@ -119,6 +120,14 @@ function App() {
           element={
             <RouteRestriction requiredRole="admin">
               <AdminPage />
+            </RouteRestriction>
+          }
+        />
+        <Route
+          path="/adminProfile"
+          element={
+            <RouteRestriction requiredRole="admin">
+              <AdminProfile />
             </RouteRestriction>
           }
         />
