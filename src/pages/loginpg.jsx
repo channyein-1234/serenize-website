@@ -69,7 +69,7 @@ const LoginForm = () => {
   
     setLoading(true);
     const { data, error } = await supabase.auth.resetPasswordForEmail(email, {
-      redirectTo: 'http://localhost:3000/reset-password', 
+      redirectTo: 'https://serenize-website.vercel.app/reset-password', 
     });
     setLoading(false);
   
