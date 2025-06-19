@@ -804,6 +804,9 @@
     font-size: 0.55rem;
     max-height: 200px;
   }
+  .calendar-title{
+    margin-left: 110px;
+  }
 
   .react-calendar__tile {
     padding: 0.2rem 0;

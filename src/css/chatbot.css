@@ -48,7 +48,7 @@
   }
   @media (max-width: 750px) {
     .chat-container {
-      height: 80vh !important; /* Adjust to your preferred height */
+      height: 40vh !important; 
       padding: 10px !important;
       align-items: flex-start !important;
     }
@@ -84,6 +84,22 @@
       .cs-button--send svg {
         font-size: 15px !important;
         margin-bottom: 15px;
+      }
+      .cs-message-input{
+        font-size: 10px;
+      }
+      .cs-message-list{
+        font-size: 10px;
+      }
+
+      .whole-chat-container{
+        display: flex;
+        justify-content: center;
+        align-items: start;
+      }
+
+      .chat-container{
+        width: 300px;
       }
       
       
