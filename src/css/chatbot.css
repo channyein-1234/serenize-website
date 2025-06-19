@@ -48,7 +48,7 @@
   }
   @media (max-width: 750px) {
     .chat-container {
-      height: 60vh !important; /* Adjust to your preferred height */
+      height: 80vh !important; /* Adjust to your preferred height */
       padding: 10px !important;
       align-items: flex-start !important;
     }
