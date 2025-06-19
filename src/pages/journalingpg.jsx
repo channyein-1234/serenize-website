@@ -7,7 +7,7 @@ import Footer from "./footerpg";
 import supabase from "./supabaseClient";
 
 
-const stickers = ["/stickers/star.png", "/stickers/heart.png", "/stickers/smile.png"];
+const stickers = ["/stickers/star.png"];
 const JournalPreviewGrid = ({ journals, loadJournalForEdit, deleteJournal }) => {
   // Store refs for multiple canvases, keyed by journal id
   const canvasRefs = useRef({});
@@ -300,7 +300,7 @@ const deleteJournal = async (id) => {
         x: 100,
         y: 100,
         width: 200,
-        height: 100,
+        height: 400,
       },
     ]);
   };

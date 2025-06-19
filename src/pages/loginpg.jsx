@@ -66,11 +66,13 @@ const LoginForm = () => {
       alert('Please enter your email first.');
       return;
     }
-
+  
     setLoading(true);
-    const { data, error } = await supabase.auth.resetPasswordForEmail(email);
+    const { data, error } = await supabase.auth.resetPasswordForEmail(email, {
+      redirectTo: 'http://localhost:3000/reset-password', 
+    });
     setLoading(false);
-
+  
     if (error) {
       console.error('Error resetting password:', error.message);
       alert('Reset password failed: ' + error.message);
@@ -79,7 +81,7 @@ const LoginForm = () => {
       alert('Password reset email sent! Please check your inbox.');
     }
   };
-
+  
   return (
     <div className="login-container">
       <form

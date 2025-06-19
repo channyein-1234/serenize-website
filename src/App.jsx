@@ -5,7 +5,6 @@ import HomePage from './pages/Homepg';
 import WelcomePage from './pages/greetpg';
 import LoginForm from './pages/loginpg';
 import RegisterForm from './pages/registerpg';
-import ResetPassword from './pages/resetpwpg';
 import Planning from './pages/planpg';
 import JournalEditor from './pages/journalingpg';
 import Wellness from './pages/wellnesspg';
@@ -15,6 +14,7 @@ import AdminPage from './pages/adminpg';
 import RouteRestriction from './pages/routeRestriction';
 import UserProfile from './pages/userProfile';
 import AdminProfile from './pages/adminProfile';
+import ResetPassword from './pages/resetPw';
 
 function App() {
   if ('serviceWorker' in navigator) {
@@ -52,7 +52,10 @@ function App() {
         <Route path="/" element={<WelcomePage />} />
         <Route path="/login" element={<LoginForm />} />
         <Route path="/register" element={<RegisterForm />} />
-        <Route path="/reset-password" element={<ResetPassword />} />
+        <Route path="/reset-password" element={< ResetPassword/>} />
+
+        
+
 
 
         {/* Protected Routes */}
