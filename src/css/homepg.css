@@ -79,6 +79,7 @@
   border: 2px dashed rgb(213, 136, 136);
 }
 
+
 .calendar-title {
   text-align: center;
   font-size: 1.1rem;
@@ -93,15 +94,8 @@
 }
 
 .react-calendar__navigation {
-  display: flex;
-  flex-direction: row;
-  justify-content: space-between;
-  align-items: center;
-  flex-wrap: nowrap;
-  width: 100%;
-  gap: 0.25rem;
-  margin-bottom: 0.5rem;
-  box-sizing: border-box;
+ width: 100%;
+ display: flex;
 }
 
 .react-calendar__navigation button {
@@ -411,15 +405,17 @@
     white-space: normal;
   }
 }
-@media (max-width: 640px) {
+@media (max-width: 650px) {
   /* Container adjustments */
   .top-section {
     gap: 1rem;
     margin: 1rem;
+    display: flex;
+    flex-direction: column;
   }
 
   .reminder-box {
-    width: 70%; /* smaller width */
+    width: 100%; /* smaller width */
     padding: 0.5rem 0.75rem;
   }
 
@@ -438,24 +434,55 @@
     font-size: 0.85rem;
   }
 
-  .calendar-container {
-    width: 60%;
-    padding: 0.5rem;
-  }
 
+
+  .calendar-container {
+    width: 100%;
+    padding: 0.5rem;
+    overflow-x: auto; /* Make container scrollable */
+    -webkit-overflow-scrolling: touch; /* smooth scrolling on iOS */
+  }
+  
   .react-calendar {
     max-height: 280px;
     font-size: 0.85rem;
+    width: 100%; /* ensure minimum width */
+    /* Remove overflow-x here */
   }
-
+ 
+  .react-calendar__navigation {
+    /* Let the navigation buttons take full width */
+    width: 100%;
+    overflow-x: auto;
+    display: flex;
+  }
+  
   .react-calendar__navigation button {
     padding: 0.3rem 0.5rem;
     font-size: 0.8rem;
+    /* Remove fixed width so they don't cause misalignment */
+    width: auto;
   }
+  
+  .react-calendar__month-view__weekdays {
+    display: grid !important;
+    grid-template-columns: repeat(7, 1fr) !important;
+    width: max-content; /* let it expand to content width */
+    width: auto;; /* or same min-width as days */
+    overflow-x: auto;
+    /* Optionally add */
+    overflow-y: hidden;
+  }
+  
+  .react-calendar__month-view__days {
+    display: grid !important;
+    grid-template-columns: repeat(7, 1fr) !important;
+    width: auto;
+    gap: 2px;
+    overflow-x: auto;
+  }
+  
 
-  .react-calendar__tile {
-    padding: 0.4rem 0;
-  }
 
   /* Middle section adjustments */
   .middle-section {
@@ -572,6 +599,21 @@
     font-size: 15px;
   }
 }
+
+@media (max-width:485px) {
+  .calendar-container {
+    overflow-x: auto;
+    width: 100%;
+  }
+
+  .react-calendar {
+    min-width: 400px; /* or however wide your calendar needs to be */
+    width: max-content; /* ensures it expands with content */
+  }
+
+  
+  
+}
 @media (max-width: 420px) {
   /* ======= Global Layout Tweak ======= */
   .top-section,
@@ -616,22 +658,11 @@
     border-radius: 6px;
   }
 
-  /* ======= Calendar Size + Font Downscale ======= */
-  .react-calendar {
-    font-size: 0.7rem;
-    max-height: 240px;
+  .calendar-title{
+    margin-left: 50px;
   }
 
-  .react-calendar__tile {
-    padding: 0.3rem 0;
-    font-size: 0.7rem;
-    border-radius: 6px;
-  }
 
-  .react-calendar__navigation button {
-    padding: 0.3rem;
-    font-size: 0.7rem;
-  }
 
   /* ======= Buttons and Inputs Downscale ======= */
   .action-btn,
@@ -659,7 +690,9 @@
     width: 35px;
   }
 }
-@media (max-width: 350px) {
+
+
+@media (max-width: 360px) {
   /* Layout tighter spacing */
   .top-section,
   .middle-section,
@@ -706,23 +739,12 @@
     border-radius: 5px;
   }
 
-  /* Calendar shrink */
-  .react-calendar {
-    font-size: 0.6rem;
-    max-height: 220px;
+  .calendar-title{
+    margin-left: 90px;
+    font-size: 12px;
   }
 
-  .react-calendar__tile {
-    padding: 0.25rem 0;
-    font-size: 0.6rem;
-    border-radius: 5px;
-  }
-
-  .react-calendar__navigation button {
-    padding: 0.25rem;
-    font-size: 0.65rem;
-  }
-
+ 
   /* Buttons and Inputs shrink */
   .action-btn,
   .save-btn,
