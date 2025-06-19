@@ -1,44 +1,48 @@
-// src/pages/UpdatePassword.jsx
-import React, { useState } from 'react';
-import '../css/authForm.css';
-import { useNavigate } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import '../css/resetpw.css';
 import supabase from './supabaseClient';
 
 const ResetPassword = () => {
-  const navigate = useNavigate();
   const [newPassword, setNewPassword] = useState('');
-  const [status, setStatus] = useState('');
   const [loading, setLoading] = useState(false);
+  const [status, setStatus] = useState('');
 
-  const handlePasswordUpdate = async (e) => {
+  useEffect(() => {
+    // Ensure Supabase picks up the access token from URL hash
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      if (!session) {
+        setStatus('Reset link is invalid or expired. Please request a new one.');
+      }
+    });
+  }, []);
+
+  const handleReset = async (e) => {
     e.preventDefault();
+    if (!newPassword || newPassword.length < 6) {
+      alert('Password must be at least 6 characters long.');
+      return;
+    }
+
     setLoading(true);
 
-    const { error } = await supabase.auth.updateUser({ password: newPassword });
+    const { error } = await supabase.auth.updateUser({
+      password: newPassword,
+    });
+
     setLoading(false);
 
     if (error) {
-      setStatus('Error: ' + error.message);
+      alert('Failed to reset password: ' + error.message);
     } else {
-      setStatus('Password updated successfully!');
-      setTimeout(() => navigate('/login'), 2000);
+      alert('Password updated successfully! You can now log in.');
+      window.location.href = '/login'; // Redirect to login page
     }
   };
 
   return (
-    <div className="login-container">
-      <form className="login-form" onSubmit={handlePasswordUpdate}>
-        <button
-          type="button"
-          className="previous-btn"
-          onClick={() => window.history.back()}
-        >
-          ←
-        </button>
-
+    <div className="reset-container">
+      <form onSubmit={handleReset} className="reset-form">
         <h2>Reset Your Password</h2>
-
-        <label>New Password</label>
         <input
           type="password"
           placeholder="Enter new password"
@@ -46,11 +50,9 @@ const ResetPassword = () => {
           onChange={(e) => setNewPassword(e.target.value)}
           required
         />
-
         <button type="submit" disabled={loading}>
-          {loading ? 'Updating...' : 'Update Password'}
+          {loading ? 'Updating...' : 'Reset Password'}
         </button>
-
         {status && <p className="status-message">{status}</p>}
       </form>
     </div>
