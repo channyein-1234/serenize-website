@@ -300,7 +300,7 @@ const deleteJournal = async (id) => {
         x: 100,
         y: 100,
         width: 200,
-        height: 400,
+        height: 100,
       },
     ]);
   };
@@ -481,6 +481,8 @@ const deleteJournal = async (id) => {
                     height: "100%",
                     display: "flex",
                     flexDirection: "column",
+                    touchAction: "auto", 
+                    zIndex: 2,
                   }}
                 >
                   <textarea
@@ -491,8 +493,19 @@ const deleteJournal = async (id) => {
                         prev.map((b) => (b.id === t.id ? { ...b, text } : b))
                       );
                     }}
-                    
+                    style={{
+                      width: "100%",
+                      height: "100%",
+                      resize: "none",
+                      boxSizing: "border-box",
+                      fontSize: "1rem",
+                      padding: "0.5rem",
+                      zIndex: 3, 
+                      backgroundColor: "white",
+                    }}
+                    rows={5}
                   />
+
                   <button
                     className="delete-btn"
                     onClick={() =>

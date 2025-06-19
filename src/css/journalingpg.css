@@ -157,6 +157,7 @@
   cursor: pointer;
   z-index: 10;
   padding: 0;
+  pointer-events: auto;
 }
 
 /* Show delete button when hovering over the sticker container */
