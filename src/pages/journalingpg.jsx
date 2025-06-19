@@ -45,12 +45,14 @@ const JournalPreviewGrid = ({ journals, loadJournalForEdit, deleteJournal }) => 
                   strokeWidth={3}
                   canvasColor="#fff"
                   style={{
+                    pointerEvents:'none',
                     position: "absolute",
                     width: "100%",
                     height: "100%",
                     top: 0,
                     left: 0,
                     zIndex: 1,
+                    touchAction:"auto"
                   }}
                 />
                 {journal.entry?.stickers?.map((s) => (
@@ -92,6 +94,7 @@ const JournalPreviewGrid = ({ journals, loadJournalForEdit, deleteJournal }) => 
                         overflow: "hidden",
                         fontSize: "14px",
                         border: "1px solid #ccc",
+                        touchAction:'auto'
                       }}
                     >
                       {t.text}
@@ -394,7 +397,7 @@ const deleteJournal = async (id) => {
               eraserWidth={eraserWidth}
               backgroundImage={bgImage}
               preserveBackgroundImageAspectRatio="xMidYMid"
-              style={{ position: "absolute", width: "100%", height: "100%", top: 0, left: 0, zIndex: 1 }}
+              style={{ position: "absolute",  pointerEvents:'none', width: "100%", height: "100%", top: 0, left: 0, zIndex: 1 }}
             />
 
             {/* Stickers draggable and resizable */}
@@ -502,6 +505,7 @@ const deleteJournal = async (id) => {
                       padding: "0.5rem",
                       zIndex: 3, 
                       backgroundColor: "white",
+                      touchAction:"auto"
                     }}
                     rows={5}
                   />
