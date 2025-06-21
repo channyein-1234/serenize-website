@@ -251,15 +251,6 @@ const deleteJournal = async (id) => {
   }
 };
 
-  
-  
-
-  // Toggle pen mode
-  const handlePenClick = () => {
-    setEraseMode(false);
-    canvasRef.current?.eraseMode(false);
-  };
-
   // Toggle eraser mode
   const handleEraserClick = () => {
     setEraseMode(true);
@@ -350,9 +341,6 @@ const deleteJournal = async (id) => {
             </div>
 
             <div className="tools">
-              <button disabled={!eraseMode} onClick={handlePenClick}>
-                Pen
-              </button>
               <button disabled={eraseMode} onClick={handleEraserClick}>
                 Eraser
               </button>
@@ -491,8 +479,21 @@ const deleteJournal = async (id) => {
                         prev.map((b) => (b.id === t.id ? { ...b, text } : b))
                       );
                     }}
-                    
+                    style={{
+                      width: "100%",
+                      height: "100%",
+                      resize: "none",
+                      fontSize: "16px", // this is important for iPad keyboards to trigger
+                      padding: "4px",
+                      boxSizing: "border-box",
+                      border: "1px solid #ccc",
+                      backgroundColor: "#fff",
+                      zIndex: 4,
+                      touchAction: "auto",
+                      pointerEvents: "auto"
+                    }}
                   />
+
                   <button
                     className="delete-btn"
                     onClick={() =>
