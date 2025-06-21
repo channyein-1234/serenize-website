@@ -476,16 +476,9 @@ const JournalEditor = () => {
                 bounds="parent"
                 style={{ zIndex: 2 }}
               >
-                <div
-                  style={{
-                    position: "relative",
-                    width: "100%",
-                    height: "100%",
-                    display: "flex",
-                    flexDirection: "column",
-                  }}
-                >
-                  <textarea
+                
+
+                <textarea
                     value={t.text}
                     onChange={(e) => {
                       const text = e.target.value;
@@ -507,17 +500,6 @@ const JournalEditor = () => {
                       pointerEvents: "auto",
                     }}
                   />
-
-                  <button
-                    className="delete-btn"
-                    onClick={() =>
-                      setTextBoxes((prev) => prev.filter((b) => b.id !== t.id))
-                    }
-                    aria-label="Delete text box"
-                  >
-                    ×
-                  </button>
-                </div>
               </Rnd>
             ))}
           </div>
