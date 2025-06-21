@@ -6,9 +6,10 @@ import Navbar from "./navbar";
 import Footer from "./footerpg";
 import supabase from "./supabaseClient";
 
-const stickers = ["/stickers/star.png"];
 
+const stickers = ["/stickers/star.png"];
 const JournalPreviewGrid = ({ journals, loadJournalForEdit, deleteJournal }) => {
+  // Store refs for multiple canvases, keyed by journal id
   const canvasRefs = useRef({});
 
   useEffect(() => {
@@ -30,7 +31,10 @@ const JournalPreviewGrid = ({ journals, loadJournalForEdit, deleteJournal }) => 
         ) : (
           journals.map((journal) => (
             <div key={journal.id} className="journal-preview">
-              <div className="canvas-wrapper" >
+              <div
+                className="canvas-wrapper"
+                
+              >
                 <ReactSketchCanvas
                   ref={(el) => {
                     if (el) {
@@ -108,6 +112,7 @@ const JournalPreviewGrid = ({ journals, loadJournalForEdit, deleteJournal }) => 
   );
 };
 
+
 const JournalEditor = () => {
   const canvasRef = useRef(null);
   const [eraseMode, setEraseMode] = useState(false);
@@ -120,146 +125,140 @@ const JournalEditor = () => {
   const [textBoxes, setTextBoxes] = useState([]);
   const [user, setUser] = useState(null);
   const [journals, setJournals] = useState([]);
-  const [editingJournalId, setEditingJournalId] = useState(null);
-
-  // NEW: Track whether canvas is active for drawing/erasing
-  const [isDrawingMode, setIsDrawingMode] = useState(true);
+const [editingJournalId, setEditingJournalId] = useState(null);
 
   // Fetch authenticated user on mount
-  useEffect(() => {
-    const fetchUser = async () => {
-      const {
-        data: { user },
-        error,
-      } = await supabase.auth.getUser();
+useEffect(() => {
+  const fetchUser = async () => {
+    const {
+      data: { user },
+      error,
+    } = await supabase.auth.getUser();
 
-      if (error || !user) {
-        alert("Error fetching user");
-        return;
-      }
-      setUser(user);
+    if (error || !user) {
+      alert("Error fetching user");
+      return;
+    }
+    setUser(user);
+  };
+
+  fetchUser();
+}, []);
+
+// Save or update journal entry
+const handleSaveCanvas = async () => {
+  if (!user) {
+    alert("User not loaded yet");
+    return;
+  }
+
+  try {
+    const drawingPaths = await canvasRef.current.exportPaths();
+
+    const journalEntry = {
+      drawings: drawingPaths,
+      stickers: placedStickers,
+      textBoxes: textBoxes,
     };
 
-    fetchUser();
-  }, []);
-
-  // Save or update journal entry
-  const handleSaveCanvas = async () => {
-    if (!user) {
-      alert("User not loaded yet");
-      return;
-    }
-
-    try {
-      const drawingPaths = await canvasRef.current.exportPaths();
-
-      const journalEntry = {
-        drawings: drawingPaths,
-        stickers: placedStickers,
-        textBoxes: textBoxes,
-      };
-
-      let response;
-      if (editingJournalId) {
-        // Update existing journal
-        response = await supabase
-          .from("journaling")
-          .update({
+    let response;
+    if (editingJournalId) {
+      // Update existing journal
+      response = await supabase
+        .from("journaling")
+        .update({
+          entry: journalEntry,
+          updated_at: new Date(),
+        })
+        .eq("id", editingJournalId)
+        .select();
+    } else {
+      // Insert new journal
+      response = await supabase
+        .from("journaling")
+        .insert([
+          {
+            user_id: user.id,
             entry: journalEntry,
-            updated_at: new Date(),
-          })
-          .eq("id", editingJournalId)
-          .select();
-      } else {
-        // Insert new journal
-        response = await supabase
-          .from("journaling")
-          .insert([
-            {
-              user_id: user.id,
-              entry: journalEntry,
-              created_at: new Date(),
-            },
-          ])
-          .select();
-      }
-
-      const { error } = response;
-      if (error) {
-        console.error("Supabase save error:", error);
-        alert("Failed to save journal: " + error.message);
-        return;
-      }
-
-      alert(editingJournalId ? "Journal updated!" : "Journal saved!");
-      setEditingJournalId(null);
-      fetchJournals();
-    } catch (error) {
-      console.error("Unexpected error saving journal:", error);
-      alert("Failed to save journal due to unexpected error.");
+            created_at: new Date(),
+          },
+        ])
+        .select();
     }
-  };
 
-  // Fetch all journals for the current user
-  const fetchJournals = useCallback(async () => {
-    if (!user) return;
-
-    const { data, error } = await supabase
-      .from("journaling")
-      .select("*")
-      .eq("user_id", user.id)
-      .order("created_at", { ascending: false });
-
+    const { error } = response;
     if (error) {
-      console.error("Error fetching journals:", error);
+      console.error("Supabase save error:", error);
+      alert("Failed to save journal: " + error.message);
       return;
     }
 
-    setJournals(data);
-  }, [user]);
+    alert(editingJournalId ? "Journal updated!" : "Journal saved!");
+    setEditingJournalId(null);
+    fetchJournals();
+  } catch (error) {
+    console.error("Unexpected error saving journal:", error);
+    alert("Failed to save journal due to unexpected error.");
+  }
+};
 
-  useEffect(() => {
-    if (user) fetchJournals();
-  }, [user, fetchJournals]);
+// Fetch all journals for the current user
+const fetchJournals = useCallback(async () => {
+  if (!user) return;
 
-  // Load a journal into the editor for editing
-  const loadJournalForEdit = (journal) => {
-    if (!journal?.entry) return;
+  const { data, error } = await supabase
+    .from("journaling")
+    .select("*")
+    .eq("user_id", user.id)
+    .order("created_at", { ascending: false });
 
-    canvasRef.current.clearCanvas();
-    canvasRef.current.loadPaths(journal.entry.drawings || []);
-    setPlacedStickers(journal.entry.stickers || []);
-    setTextBoxes(journal.entry.textBoxes || []);
-    setEditingJournalId(journal.id);
-    setIsDrawingMode(true); // Enable drawing mode when editing loaded journal
-    setEraseMode(false); // reset eraser mode
-  };
+  if (error) {
+    console.error("Error fetching journals:", error);
+    return;
+  }
 
-  // Delete a journal entry by ID
-  const deleteJournal = async (id) => {
-    if (window.confirm("Are you sure you want to delete this journal?")) {
-      const { error } = await supabase.from("journaling").delete().eq("id", id);
-      if (error) {
-        alert("Failed to delete journal: " + error.message);
-        return;
-      }
-      alert("Journal deleted");
-      fetchJournals();
+  setJournals(data);
+}, [user]);
+  
+useEffect(() => {
+  if (user) fetchJournals();
+}, [user, fetchJournals]); 
+
+//////
+
+
+// Load a journal into the editor for editing
+const loadJournalForEdit = (journal) => {
+  if (!journal?.entry) return;
+
+  canvasRef.current.clearCanvas();
+  canvasRef.current.loadPaths(journal.entry.drawings || []);
+  setPlacedStickers(journal.entry.stickers || []);
+  setTextBoxes(journal.entry.textBoxes || []);
+  setEditingJournalId(journal.id);
+};
+
+// Delete a journal entry by ID
+const deleteJournal = async (id) => {
+  if (window.confirm("Are you sure you want to delete this journal?")) {
+    const { error } = await supabase.from("journaling").delete().eq("id", id);
+    if (error) {
+      alert("Failed to delete journal: " + error.message);
+      return;
     }
-  };
+    alert("Journal deleted");
+    fetchJournals();
+  }
+};
+
+  
+  
+
 
   // Toggle eraser mode
   const handleEraserClick = () => {
     setEraseMode(true);
-    setIsDrawingMode(true);
     canvasRef.current?.eraseMode(true);
-  };
-
-  // Switch back to pen/draw mode
-  const handlePenClick = () => {
-    setEraseMode(false);
-    setIsDrawingMode(true);
-    canvasRef.current?.eraseMode(false);
   };
 
   // Upload background image
@@ -284,7 +283,6 @@ const JournalEditor = () => {
         height: 100,
       },
     ]);
-    setIsDrawingMode(false); // disable drawing so sticker can be clicked/dragged
   };
 
   // Add new text box at default position & size
@@ -300,8 +298,8 @@ const JournalEditor = () => {
         height: 100,
       },
     ]);
-    setIsDrawingMode(false); // disable drawing so text box can be focused/edited
   };
+
 
   return (
     <div className="page-container">
@@ -346,8 +344,7 @@ const JournalEditor = () => {
               <input type="file" accept="image/*" onChange={handleImageUpload} />
             </div>
 
-            <div className="tools">
-              <button onClick={handlePenClick} disabled={!eraseMode}>Pen</button>
+            <div className="tools">  
               <button disabled={eraseMode} onClick={handleEraserClick}>
                 Eraser
               </button>
@@ -380,7 +377,7 @@ const JournalEditor = () => {
           </div>
 
           {/* Canvas and overlays container */}
-          <div className="canvas-wrapper" style={{ border: "1px solid #ccc", position: "relative" }}>
+          <div className="canvas-wrapper" style={{  border: "1px solid #ccc" }}>
             <ReactSketchCanvas
               ref={canvasRef}
               strokeColor={strokeColor}
@@ -389,15 +386,7 @@ const JournalEditor = () => {
               eraserWidth={eraserWidth}
               backgroundImage={bgImage}
               preserveBackgroundImageAspectRatio="xMidYMid"
-              style={{
-                position: "absolute",
-                width: "100%",
-                height: "100%",
-                top: 0,
-                left: 0,
-                zIndex: 1,
-                pointerEvents: isDrawingMode ? "auto" : "none",
-              }}
+              style={{ position: "absolute", width: "100%", height: "100%", top: 0, left: 0, zIndex: 1 }}
             />
 
             {/* Stickers draggable and resizable */}
@@ -440,6 +429,7 @@ const JournalEditor = () => {
                     onClick={() =>
                       setPlacedStickers((prev) => prev.filter((p) => p.id !== s.id))
                     }
+                    
                     aria-label="Delete sticker"
                   >
                     ×
@@ -476,9 +466,16 @@ const JournalEditor = () => {
                 bounds="parent"
                 style={{ zIndex: 2 }}
               >
-                
-
-                <textarea
+                <div
+                  style={{
+                    position: "relative",
+                    width: "100%",
+                    height: "100%",
+                    display: "flex",
+                    flexDirection: "column",
+                  }}
+                >
+                  <textarea
                     value={t.text}
                     onChange={(e) => {
                       const text = e.target.value;
@@ -486,37 +483,35 @@ const JournalEditor = () => {
                         prev.map((b) => (b.id === t.id ? { ...b, text } : b))
                       );
                     }}
-                    style={{
-                      width: "100%",
-                      height: "100%",
-                      resize: "none",
-                      fontSize: "16px",
-                      padding: "4px",
-                      boxSizing: "border-box",
-                      border: "1px solid #ccc",
-                      backgroundColor: "#fff",
-                      zIndex: 4,
-                      touchAction: "auto",
-                      pointerEvents: "auto",
-                    }}
+                    
                   />
+                  <button
+                    className="delete-btn"
+                    onClick={() =>
+                      setTextBoxes((prev) => prev.filter((b) => b.id !== t.id))
+                    }
+                    
+                    aria-label="Delete text box"
+                  >
+                    ×
+                  </button>
+                </div>
               </Rnd>
             ))}
           </div>
 
           {/* Save button */}
           <div className="save-btn-container" style={{ marginTop: "15px" }}>
-            <button onClick={handleSaveCanvas} className="save-button">
-              Save Journal
+            <button onClick={handleSaveCanvas} className="save-button">Save Journal
             </button>
           </div>
 
           {/* journal preview  */}
-          <JournalPreviewGrid
-            journals={journals}
-            loadJournalForEdit={loadJournalForEdit}
-            deleteJournal={deleteJournal}
-          />
+          <JournalPreviewGrid 
+            journals={journals} 
+            loadJournalForEdit={loadJournalForEdit} 
+            deleteJournal={deleteJournal} 
+          /> 
         </div>
       </div>
       <Footer />
