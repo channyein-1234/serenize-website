@@ -495,7 +495,7 @@ const deleteJournal = async (id) => {
                         prev.map((b) => (b.id === t.id ? { ...b, text } : b))
                       );
                     }}
-                    
+                  
                   />
                   <button
                     className="delete-btn"
