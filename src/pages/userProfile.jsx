@@ -90,10 +90,7 @@ const UserProfile = () => {
           <form onSubmit={handleUpdate}>
             <label>Name</label>
             <input type="text" name="name" value={form.name} onChange={handleChange} />
-
-            <label>Email</label>
-            <input type="email" name="email" value={form.email} onChange={handleChange} />
-
+            
             <label>Phone</label>
             <input type="tel" name="phone" value={form.phone} onChange={handleChange} />
 
