@@ -1,70 +1,87 @@
-# Getting Started with Create React App
+# Serenize
+A privacy-focused productivity and emotional wellness web application designed
+to help users plan, journal, and reflect through a visually calming and
+interactive experience.
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+---
 
-## Available Scripts
+## Problem
+Many productivity tools focus only on tasks and deadlines, ignoring emotional
+well-being and personal reflection. Users also worry about privacy when sharing
+personal thoughts and emotions.
 
-In the project directory, you can run:
+## Solution
+Serenize combines productivity planning with emotional tracking and journaling,
+offering a secure, visually appealing platform that respects user privacy while
+providing meaningful AI-powered suggestions.
 
-### `npm start`
+---
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+## Key Features
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+### User Experience
+- Visually calming and responsive UI
+- Mini calendar for daily planning
+- Mini notes for quick thoughts
+- Responsive layout for all devices
 
-### `npm test`
+### Emotional Tracking
+- Visual emotion tracking system
+- Mood history visualization
+- Emotion-based insights over time
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+### Journaling
+- Rich journaling experience
+- Text-based journaling
+- Drawing and sticker decorations
+- Fully responsive journaling canvas
 
-### `npm run build`
+### Planning & AI Assistance
+- Planning page with suggested tasks
+- AI-powered recommendations based on mood history
+- Suggested activities to support emotional well-being
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+### Chat Companion
+- AI chat companion for emotional support
+- No user data is stored to protect privacy
+- Designed for reflection and healing, not data collection
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+### Admin & Feedback
+- Contact page for user feedback
+- Admin dashboard to view feedback and messages
+- Secure access to admin-only routes
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+---
 
-### `npm run eject`
+## Privacy & Ethics
+- No storage of chat companion conversations
+- User emotional data handled securely
+- Privacy-first design decisions throughout the system
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+---
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+## Tech Stack
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+- Frontend: React
+- Backend: Node.js / Serverless
+- AI Integration: (OpenAI )
+- Database: Supabase
+- Authentication: Supabase Auth
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
+---
 
-## Learn More
+## What are Implemented
+- Designed and built a visually appealing, calming UI
+- Implemented emotion tracking with visual indicators
+- Developed a rich journaling interface with drawing tools
+- Integrated AI recommendations based on user mood history
+- Built a privacy-respecting AI chat companion
+- Created admin dashboard for managing user feedback
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+---
 
-To learn React, check out the [React documentation](https://reactjs.org/).
 
-### Code Splitting
+##  Demo
+https://serenize-website.vercel.app
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
 
-### Analyzing the Bundle Size
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
-
-### Making a Progressive Web App
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
-
-### Advanced Configuration
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
-
-### Deployment
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `npm run build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
